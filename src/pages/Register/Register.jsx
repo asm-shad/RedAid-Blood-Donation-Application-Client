@@ -1,7 +1,7 @@
-// import React, { useContext, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-// import { AuthContext } from "../provider/AuthProvider";
+import { AuthContext } from "../provider/AuthProvider";
 import Swal from "sweetalert2";
 import { updateProfile } from "firebase/auth";
 import registerBg from "../../assets/heart-214014_1920.jpg"; // Background image
@@ -207,7 +207,7 @@ const Register = () => {
         </button>
         <p className="text-center font-semibold text-white mt-4">
           Already have an account?{" "}
-          <Link className="text-white underline" to="/auth/login">
+          <Link className="text-white underline" to="/login">
             Login
           </Link>
         </p>

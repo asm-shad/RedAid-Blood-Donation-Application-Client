@@ -12,10 +12,12 @@
   "dependencies": {
     "@react-login-page/page10": "^1.0.4",
     "firebase": "^11.2.0",
+    "helmet": "^8.0.0",
     "localforage": "^1.10.0",
     "match-sorter": "^8.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-helmet-async": "^2.0.5",
     "react-icons": "^5.4.0",
     "react-router-dom": "^7.1.1",
     "sort-by": "^1.2.0",
