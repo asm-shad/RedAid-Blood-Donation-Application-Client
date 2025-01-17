@@ -51,26 +51,7 @@ const Register = () => {
             const newUser = { name, email, createdAt };
 
             // Save user info to the database
-            fetch("https://dream-bridge-server.vercel.app/users", {
-              method: "POST",
-              headers: {
-                "content-type": "application/json",
-              },
-              body: JSON.stringify(newUser),
-            })
-              .then((res) => res.json())
-              .then((data) => {
-                if (data.insertedId) {
-                  Swal.fire({
-                    title: "Success!",
-                    text: "Account created successfully!",
-                    icon: "success",
-                    confirmButtonText: "Great!",
-                  });
-                  form.reset();
-                  navigate("/"); // Redirect after successful registration
-                }
-              });
+
           })
           .catch((err) => {
             console.error("Error updating profile:", err);
