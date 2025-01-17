@@ -1,81 +1,109 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import logo from "../../../assets/logo.png";
 import { Link } from "react-router-dom";
+import { IoMoon, IoSunny } from "react-icons/io5";
+import useAuth from "../../../hooks/useAuth";
 
 const Navbar = () => {
+  const { user, logOut } = useAuth();
+  const [darkTheme, setDarkTheme] = useState(false);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    darkTheme ? root.classList.add("dark") : root.classList.remove("dark");
+  }, [darkTheme]);
+
   return (
-    <div className="navbar bg-base-100">
-      <div className="flex-1">
-      <Link to="/" className="flex gap-2 items-center">
-          <img className="w-auto h-7" src={logo} alt="AssignMate Logo" />
-          <span className="hidden md:inline font-bold font-rancho text-3xl">
-            RedAid
-          </span>
-        </Link>
-      </div>
-      <div className="flex-none">
-        <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">
-            <div className="indicator">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <span className="badge badge-sm indicator-item">8</span>
-            </div>
-          </div>
-          <div
-            tabIndex={0}
-            className="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-52 shadow"
-          >
-            <div className="card-body">
-              <span className="text-lg font-bold">8 Items</span>
-              <span className="text-info">Subtotal: $999</span>
-              <div className="card-actions">
-                <button className="btn btn-primary btn-block">View cart</button>
-              </div>
-            </div>
-          </div>
+    <div className="navbar sticky top-0 z-50 px-4 py-3 shadow-md bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white">
+      <div className="container mx-auto">
+        {/* Left Section - Logo */}
+        <div className="flex-1">
+          <Link to="/" className="flex gap-2 items-center">
+            <img className="w-auto h-8" src={logo} alt="Logo" />
+            <span className="hidden md:inline font-bold font-rancho text-3xl">
+              RedAid
+            </span>
+          </Link>
         </div>
-        <div className="dropdown dropdown-end">
-          <div
-            tabIndex={0}
-            role="button"
-            className="btn btn-ghost btn-circle avatar"
+
+        {/* Right Section - Links */}
+        <div className="flex items-center gap-4">
+          {/* Toggle Button for Dark Mode */}
+          <button
+            onClick={() => setDarkTheme(!darkTheme)}
+            className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 bg-white dark:bg-gray-800 rounded-full shadow-md transition-all duration-300 focus:outline-none"
           >
-            <div className="w-10 rounded-full">
-              <img
-                alt="Tailwind CSS Navbar component"
-                src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-              />
-            </div>
-          </div>
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-          >
+            {darkTheme ? (
+              <IoMoon className="text-white w-5 h-5" />
+            ) : (
+              <IoSunny className="text-yellow-400 w-5 h-5" />
+            )}
+          </button>
+
+          <ul className="menu menu-horizontal px-1 flex items-center gap-4">
             <li>
-              <a className="justify-between">
-                Profile
-                <span className="badge">New</span>
-              </a>
+              <Link to="/donation-requests" className="hover:underline">
+                Donation Requests
+              </Link>
             </li>
             <li>
-              <a>Settings</a>
+              <Link to="/blog" className="hover:underline">
+                Blog
+              </Link>
             </li>
-            <li>
-              <a>Logout</a>
-            </li>
+            {!user ? (
+              <li>
+                <Link
+                  to="/login"
+                  className="bg-white text-red-700 px-4 py-1 rounded-md hover:bg-gray-200"
+                >
+                  Login
+                </Link>
+              </li>
+            ) : (
+              <>
+                <li>
+                  <Link to="/funding-links" className="hover:underline">
+                    Funding Links
+                  </Link>
+                </li>
+                {/* User Profile */}
+                <div className="dropdown dropdown-end">
+                  <div
+                    tabIndex={0}
+                    role="button"
+                    className="btn btn-ghost btn-circle avatar"
+                  >
+                    <div
+                      title={user?.displayName || "User"}
+                      className="w-10 rounded-full"
+                    >
+                      <img
+                        referrerPolicy="no-referrer"
+                        alt="User Profile Photo"
+                        src={user?.photoURL || "/default-avatar.png"}
+                      />
+                    </div>
+                  </div>
+                  <ul
+                    tabIndex={0}
+                    className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg rounded-box bg-white text-gray-700 w-52"
+                  >
+                    <li>
+                      <Link to="/dashboard">Dashboard</Link>
+                    </li>
+                    <li className="mt-2">
+                      <button
+                        onClick={logOut}
+                        className="bg-red-600 text-white block w-full py-2 rounded-md text-center"
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </>
+            )}
           </ul>
         </div>
       </div>

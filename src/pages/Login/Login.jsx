@@ -1,35 +1,64 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import login from "../../assets/heart-214014_1920.jpg"; // Importing the background image
+import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { AuthContext } from "../../providers/AuthProvider";
+import login from "../../assets/heart-214014_1920.jpg"; // Background image
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState({ login: "" });
+  const { signIn, signInWithGoogle } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     const { email, password } = formData;
 
-    // Example validation logic
     if (!email || !password) {
       setError({ login: "Please fill in all fields." });
+      toast.error("Please fill in all fields.");
       return;
     }
 
-    // Simulate login logic
-    console.log("Login submitted:", formData);
-    setError({ login: "" }); // Clear errors on successful submission
-    alert("Logged in successfully!");
+    // Email and Password Authentication
+    signIn(email, password)
+      .then((result) => {
+        console.log("User logged in:", result.user);
+
+        toast.success("Login successful!");
+        navigate("/"); // Redirect to the home page after login
+      })
+      .catch((err) => {
+        console.error(err.message);
+        setError({ login: "Invalid email or password. Please try again." });
+        toast.error("Invalid email or password.");
+      });
   };
 
-  // Simulate Google Sign-In
-  const handleGoogleSignIn = () => {
-    console.log("Google Sign-In clicked.");
-    alert("Signed in with Google!");
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithGoogle();
+      console.log("Google sign-in successful:", result.user);
+
+      toast.success("Logged in with Google!");
+      navigate("/"); // Redirect to the home page after login
+    } catch (err) {
+      console.error("Google sign-in error:", err.message);
+
+      switch (err.code) {
+        case "auth/popup-closed-by-user":
+          toast.error("Google sign-in popup was closed. Try again.");
+          break;
+        case "auth/cancelled-popup-request":
+          toast.error("Request canceled. Please try again.");
+          break;
+        default:
+          toast.error("Google sign-in failed. Please try again.");
+      }
+    }
   };
 
-  // Update form data
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
