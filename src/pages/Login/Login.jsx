@@ -1,14 +1,15 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { AuthContext } from "../../providers/AuthProvider";
 import login from "../../assets/heart-214014_1920.jpg"; // Background image
+import { TbFidgetSpinner } from "react-icons/tb";
+import useAuth from "../../hooks/useAuth";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState({ login: "" });
-  const { signIn, signInWithGoogle } = useContext(AuthContext);
+  const { signIn, signInWithGoogle, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,27 +40,37 @@ const Login = () => {
       });
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithGoogle();
-      console.log("Google sign-in successful:", result.user);
+  // const handleGoogleSignIn = async () => {
+  //   try {
+  //     const result = await signInWithGoogle();
+  //     console.log("Google sign-in successful:", result.user);
 
-      toast.success("Logged in with Google!");
-      navigate("/"); // Redirect to the home page after login
-    } catch (err) {
-      console.error("Google sign-in error:", err.message);
+  //     toast.success("Logged in with Google!");
+  //     navigate("/"); // Redirect to the home page after login
+  //   } catch (err) {
+  //     console.error("Google sign-in error:", err.message);
 
-      switch (err.code) {
-        case "auth/popup-closed-by-user":
-          toast.error("Google sign-in popup was closed. Try again.");
-          break;
-        case "auth/cancelled-popup-request":
-          toast.error("Request canceled. Please try again.");
-          break;
-        default:
-          toast.error("Google sign-in failed. Please try again.");
-      }
-    }
+  //     switch (err.code) {
+  //       case "auth/popup-closed-by-user":
+  //         toast.error("Google sign-in popup was closed. Try again.");
+  //         break;
+  //       case "auth/cancelled-popup-request":
+  //         toast.error("Request canceled. Please try again.");
+  //         break;
+  //       default:
+  //         toast.error("Google sign-in failed. Please try again.");
+  //     }
+  //   }
+  // };
+
+  const handleGoogleSignIn = () => {
+    Swal.fire({
+      title: "Google Sign-In Not Available",
+      text: "Google Sign-In is not available for this site, as we don't get the required data through this. This is just for demo purposes.",
+      icon: "info",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#3085d6",
+    });
   };
 
   const handleChange = (e) => {
@@ -133,8 +144,11 @@ const Login = () => {
             </Link>
           </label>
           <div className="form-control mt-6">
-            <button className="btn bg-red-600 text-white hover:bg-red-700">
-              Login
+            <button
+              type="submit"
+              className="btn bg-red-600 text-white hover:bg-red-700 flex justify-center items-center"
+            >
+              {loading ? <TbFidgetSpinner className="animate-spin" /> : "Login"}
             </button>
           </div>
         </form>

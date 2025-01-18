@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@react-login-page/page10": "^1.0.4",
+    "axios": "^1.7.9",
     "firebase": "^11.2.0",
     "helmet": "^8.0.0",
     "localforage": "^1.10.0",

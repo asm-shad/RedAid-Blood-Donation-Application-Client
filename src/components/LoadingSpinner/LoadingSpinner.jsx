@@ -1,5 +1,5 @@
 import React from "react";
-import { Circles } from "react-loader-spinner"; // Import the Hairball spinner
+import { CirclesWithBar } from "react-loader-spinner"; // Import the CirclesWithBar spinner
 import bgLoader from "../../assets/cork-board.jpg"; // Background image
 
 const LoadingSpinner = () => {
@@ -13,15 +13,16 @@ const LoadingSpinner = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <Circles
-        height={100} // Adjust height
-        width={100} // Adjust width
-        colors={{
-          fillColor1: "#ff0000", // Red
-          fillColor2: "#00ff00", // Green
-          fillColor3: "#0000ff", // Blue
-          fillColor4: "#ffff00", // Yellow
-        }}
+      <CirclesWithBar
+        height="100" // Spinner height
+        width="100" // Spinner width
+        color="#4fa94d" // Main color
+        outerCircleColor="#4fa94d" // Outer circle color
+        innerCircleColor="#4fa94d" // Inner circle color
+        barColor="#4fa94d" // Bar color
+        ariaLabel="circles-with-bar-loading" // Accessibility label
+        wrapperStyle={{}} // Additional inline styles
+        wrapperClass="" // Additional wrapper classes
         visible={true} // Display the spinner
       />
     </div>
