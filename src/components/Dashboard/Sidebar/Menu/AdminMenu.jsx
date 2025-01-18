@@ -2,27 +2,35 @@ import { FaUserCog } from "react-icons/fa";
 import { BsPeople, BsFileText, BsDropletHalf } from "react-icons/bs";
 import MenuItem from "./MenuItem";
 
-const AdminMenu = () => {
-  return (
-    <>
-      <MenuItem icon={FaUserCog} label="Dashboard Home" address="/dashboard" />
-      <MenuItem
-        icon={BsPeople}
-        label="All Users"
-        address="/dashboard/all-users"
-      />
-      <MenuItem
-        icon={BsDropletHalf}
-        label="All Blood Requests"
-        address="/dashboard/all-blood-donation-request"
-      />
-      <MenuItem
-        icon={BsFileText}
-        label="Content Management"
-        address="/dashboard/content-management"
-      />
-    </>
-  );
-};
+const menuItems = [
+  {
+    label: "Dashboard Home",
+    address: "/dashboard/admin",
+    icon: FaUserCog,
+  },
+  {
+    label: "All Users",
+    address: "/dashboard/admin/all-users",
+    icon: BsPeople,
+  },
+  {
+    label: "All Blood Requests",
+    address: "/dashboard/admin/all-donation-requests",
+    icon: BsDropletHalf,
+  },
+  {
+    label: "Content Management",
+    address: "/dashboard/admin/content-management",
+    icon: BsFileText,
+  },
+];
+
+const AdminMenu = () => (
+  <nav>
+    {menuItems.map((item, index) => (
+      <MenuItem key={index} {...item} />
+    ))}
+  </nav>
+);
 
 export default AdminMenu;

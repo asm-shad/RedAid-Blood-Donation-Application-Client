@@ -5,37 +5,62 @@ import AdminMenu from "./Menu/AdminMenu";
 import DonorMenu from "./Menu/DonorMenu";
 import VolunteerMenu from "./Menu/VolunteerMenu";
 import MenuItem from "./Menu/MenuItem";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { BsGraphUp } from "react-icons/bs";
 
-const Sidebar = ({ userRole, logOut }) => {
-  const [isActive, setIsActive] = useState(false);
+const Sidebar = ({ logOut }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [userRole, setUserRole] = useState("admin"); // Default role set to 'admin'
+  const navigate = useNavigate();
 
-  const handleToggle = () => {
-    setIsActive(!isActive);
+  const handleToggle = () => setIsMenuOpen((prev) => !prev);
+
+  // Handle role change and navigate to the corresponding route
+  const handleRoleChange = (e) => {
+    const role = e.target.value;
+    setUserRole(role);
+
+    // Navigate to the corresponding dashboard route
+    switch (role) {
+      case "admin":
+        navigate("/dashboard/admin");
+        break;
+      case "donor":
+        navigate("/dashboard/donor");
+        break;
+      case "volunteer":
+        navigate("/dashboard/volunteer");
+        break;
+      default:
+        navigate("/");
+    }
+  };
+
+  const renderMenu = () => {
+    switch (userRole) {
+      case "admin":
+        return <AdminMenu />;
+      case "donor":
+        return <DonorMenu />;
+      case "volunteer":
+        return <VolunteerMenu />;
+      default:
+        return null;
+    }
   };
 
   return (
     <>
       {/* Mobile Navbar */}
       <div className="bg-gray-100 text-gray-800 flex justify-between md:hidden">
-        <div>
-          <div className="block cursor-pointer p-4 font-bold">
-            <Link to="/">
-              <img
-                // className='hidden md:block'
-                src="/logo.png"
-                alt="logo"
-                width="100"
-                height="100"
-              />
-            </Link>
-          </div>
-        </div>
-
+        <Link to="/" className="block p-4 font-bold">
+          <img src="/logo.png" alt="Logo" width="100" height="100" />
+        </Link>
         <button
           onClick={handleToggle}
-          className="mobile-menu-button p-4 focus:outline-none focus:bg-gray-200"
+          aria-expanded={isMenuOpen}
+          aria-label="Toggle navigation menu"
+          className="p-4 focus:outline-none focus:bg-gray-200"
         >
           <AiOutlineBars className="h-5 w-5" />
         </button>
@@ -44,48 +69,35 @@ const Sidebar = ({ userRole, logOut }) => {
       {/* Sidebar */}
       <div
         className={`z-10 md:fixed flex flex-col justify-between overflow-x-hidden bg-gray-100 w-64 space-y-6 px-2 py-4 absolute inset-y-0 left-0 transform ${
-          isActive && "-translate-x-full"
-        }  md:translate-x-0  transition duration-200 ease-in-out`}
+          isMenuOpen ? "-translate-x-full" : "translate-x-0"
+        } md:translate-x-0 transition duration-200 ease-in-out`}
       >
-        {/* Logo and Site Name */}
-        {/* <div className="flex flex-col items-center space-y-2">
-          <img
-            src="/logo.png" // Accessing the logo from the public folder
-            alt="RedAid Logo"
-            className="h-12 w-auto"
-          />
-          <h1 className="text-xl font-semibold text-red-700">RedAid</h1>
-        </div> */}
-        <div>
-          <div>
-            <div className="w-full hidden md:flex px-4 py-2 shadow-lg rounded-lg justify-center items-center bg-lime-100 mx-auto">
-              <Link to="/">
-                <img
-                  // className='hidden md:block'
-                  src="/logo.png"
-                  alt="logo"
-                  width="100"
-                  height="100"
-                />
-              </Link>
-            </div>
-          </div>
+        {/* Logo Section with Dropdown */}
+        <div className="hidden md:flex px-4 py-2 shadow-lg rounded-lg justify-between items-center bg-lime-100 mx-auto">
+          <Link to="/" className="mr-4">
+            <img src="/logo.png" alt="Logo" width="100" height="100" />
+          </Link>
+          <select
+            value={userRole}
+            onChange={handleRoleChange}
+            className="p-2 border border-gray-300 rounded"
+          >
+            <option value="admin">Admin</option>
+            <option value="donor">Donor</option>
+            <option value="volunteer">Volunteer</option>
+          </select>
+        </div>
 
-          {/* Nav Items */}
-          <div className="flex flex-col justify-between flex-1 mt-6">
-            <nav>
-              {/*  Menu Items */}
-              <DonorMenu />
-              <VolunteerMenu />
-
-              <MenuItem
-                icon={BsGraphUp}
-                label="Statistics"
-                address="/dashboard"
-              />
-              <VolunteerMenu />
-            </nav>
-          </div>
+        {/* Role-Specific Menu */}
+        <div className="flex flex-col justify-between flex-1 mt-6">
+          <nav>
+            {renderMenu()}
+            <MenuItem
+              icon={BsGraphUp}
+              label="Statistics"
+              address="/dashboard"
+            />
+          </nav>
         </div>
 
         {/* Footer Section */}
