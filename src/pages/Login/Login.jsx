@@ -18,6 +18,7 @@ const Login = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const { email, password } = formData;
+    const form = location.state?.from?.pathname || "/";
 
     if (!email || !password) {
       setError({ login: "Please fill in all fields." });
@@ -31,7 +32,7 @@ const Login = () => {
         console.log("User logged in:", result.user);
 
         toast.success("Login successful!");
-        navigate(from, { replace: true }); // Redirect to the home page after login
+        navigate(form, { replace: true }); // Redirect to the home page after login
       })
       .catch((err) => {
         console.error(err.message);

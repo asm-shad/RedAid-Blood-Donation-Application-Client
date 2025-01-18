@@ -9,6 +9,7 @@ import {
   signOut,
 } from "firebase/auth";
 import { app } from "../firebase/firebase.cinfig";
+import axios from "axios";
 
 export const AuthContext = createContext(null);
 const googleProvider = new GoogleAuthProvider();
@@ -54,10 +55,35 @@ const AuthProvider = ({ children }) => {
     });
   };
 
+  // onAuthStateChange
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      console.log("Current User", currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      console.log("CurrentUser-->", currentUser?.email);
+      if (currentUser?.email) {
+        setUser(currentUser);
+        // save user info in db
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/users/${currentUser?.email}`,
+          {
+            name: currentUser?.displayName,
+            image: currentUser?.photoURL,  
+            email: currentUser?.email,
+          }
+        );
+        // Get JWT token
+        await axios.post(
+          `${import.meta.env.VITE_API_URL}/jwt`,
+          {
+            email: currentUser?.email,
+          },
+          { withCredentials: true }
+        );
+      } else {
+        setUser(currentUser);
+        await axios.get(`${import.meta.env.VITE_API_URL}/logout`, {
+          withCredentials: true,
+        });
+      }
       setLoading(false);
     });
     return () => {

@@ -1,20 +1,37 @@
-import { FaHome, FaFileAlt } from "react-icons/fa";
-import { BsPlusCircle, BsDropletHalf } from "react-icons/bs";
-import MenuItem from "./MenuItem";
+import { FaHome, FaClipboardList } from 'react-icons/fa';
+import { BsPlusSquare } from 'react-icons/bs';
+import { RiUser3Line } from 'react-icons/ri';
+import MenuItem from './MenuItem';
 
 const DonorMenu = () => {
   return (
     <>
-      <MenuItem icon={FaHome} label="Dashboard Home" address="/dashboard" />
-      <MenuItem
-        icon={BsDropletHalf}
-        label="My Donation Requests"
-        address="/dashboard/my-donation-requests"
+      {/* Dashboard Home */}
+      <MenuItem 
+        icon={FaHome} 
+        label="Dashboard" 
+        address="/dashboard" 
       />
-      <MenuItem
-        icon={BsPlusCircle}
-        label="Create Request"
-        address="/dashboard/create-donation-request"
+
+      {/* Profile */}
+      <MenuItem 
+        icon={RiUser3Line} 
+        label="Profile" 
+        address="/dashboard/profile" 
+      />
+
+      {/* My Donation Requests */}
+      <MenuItem 
+        icon={FaClipboardList} 
+        label="My Donation Requests" 
+        address="/dashboard/my-donation-requests" 
+      />
+
+      {/* Create Donation Request */}
+      <MenuItem 
+        icon={BsPlusSquare} 
+        label="Create Donation Request" 
+        address="/dashboard/create-donation-request" 
       />
     </>
   );

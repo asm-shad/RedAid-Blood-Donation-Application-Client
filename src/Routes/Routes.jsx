@@ -8,106 +8,160 @@ import Blog from "../pages/Blog/Blog";
 import DonationRequests from "../pages/DonationRequests/DonationRequests";
 import FundingPage from "../pages/FundingPage/FundingPage";
 import DashboardLayout from "../Layout/DashboardLayout";
+import BlogDetails from "../pages/Blog/BlogDetails";
+import SearchPage from "../pages/SearchPage/SearchPage";
+import NotFound from "../pages/ErrorPage/NotFound";
+
+// Admin Pages
+import AdminDashboard from "../pages/Dashboard/Admin/AdminDashboard";
+import AllUsers from "../pages/Dashboard/Admin/AllUsers";
+import AllDonationRequests from "../pages/Dashboard/Admin/AllDonationRequests";
+import ContentManagement from "../pages/Dashboard/Admin/ContentManagement";
+import AddBlog from "../pages/Dashboard/Admin/AddBlog";
+import EditBlog from "../pages/Dashboard/Admin/EditBlog";
+import DonationRequestDetailsAdmin from "../pages/Dashboard/Admin/DonationRequestDetailsAdmin";
+
+// Donor Pages
+import DonorDashboard from "../pages/Dashboard/Donor/DonorDashboard";
+import MyDonationRequests from "../pages/Dashboard/Donor/MyDonationRequests";
+import CreateDonationRequest from "../pages/Dashboard/Donor/CreateDonationRequest";
+import EditDonationRequest from "../pages/Dashboard/Donor/EditDonationRequest";
+
+// Volunteer Pages
+import VolunteerDashboard from "../pages/Dashboard/Volunteer/VolunteerDashboard";
+import VolunteerDonationRequests from "../pages/Dashboard/Volunteer/AllDonationRequests";
+import DonationRequestDetailsVolunteer from "../pages/Dashboard/Volunteer/DonationRequestDetailsVolunteer";
+
+// Profile Page
+import EditProfile from "../pages/EditProfile/EditProfile";
+import Profile from "../pages/Dashboard/Common/Profile";
 
 export const router = createBrowserRouter([
+  // Public Routes
   {
     path: "/",
-    element: <Main></Main>,
+    element: <Main />,
     children: [
       {
         path: "/",
-        element: <Home></Home>,
+        element: <Home />,
       },
       {
         path: "/login",
-        element: <Login></Login>,
+        element: <Login />,
       },
       {
         path: "/register",
-        element: <Register></Register>,
+        element: <Register />,
       },
       {
         path: "/blog",
-        element: <Blog></Blog>,
+        element: <Blog />,
+      },
+      {
+        path: "/blog/:id", // Blog details
+        element: <BlogDetails />,
+      },
+      {
+        path: "/search",
+        element: <SearchPage />,
       },
       {
         path: "/donation-requests",
-        element: <DonationRequests></DonationRequests>,
+        element: <DonationRequests />,
       },
       {
         path: "/funding-links",
-        element: <FundingPage></FundingPage>,
+        element: <FundingPage />,
+      },
+      {
+        path: "*", // Fallback for undefined routes
+        element: <NotFound />,
       },
     ],
   },
+
+  // Dashboard Routes (Private)
   {
-    path: "/dashboard/profile",
+    path: "/dashboard",
     element: (
       <PrivateRoute>
-        <DashboardLayout></DashboardLayout>
+        <DashboardLayout />
       </PrivateRoute>
     ),
     children: [
       {
-        index: true,
-        element: <h2>Registration data and can be edited </h2>,
-      },
-      {
-        path: "donation-requests-table",
+        path: "profile",
         element: (
-          <h2>
-            3 Donation Req in table format and a button to navigate Donation Req
-            Table
-          </h2>
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
         ),
       },
+      // Admin Routes
       {
-        path: "my-donation-requests",
-        element: <h2>All donation req made by the user, pagination, filter</h2>,
+        path: "admin",
+        element: <AdminDashboard />,
       },
       {
-        path: "create-donation-request",
-        element: <h2>Create page</h2>,
+        path: "admin/all-users",
+        element: <AllUsers />,
       },
       {
-        path: "featured-section",
-        element: <h2>Featured Section Screenshot given</h2>,
+        path: "admin/all-donation-requests",
+        element: <AllDonationRequests />,
       },
       {
-        path: "all-users",
-        element: (
-          <h2>All users filter, Pagination, volunteer, admin making option</h2>
-        ),
+        path: "admin/all-donation-requests/:id",
+        element: <DonationRequestDetailsAdmin />,
       },
       {
-        path: "all-blood-donation-request",
-        element: <h2>Most like my donation but show all req</h2>,
+        path: "admin/content-management",
+        element: <ContentManagement />,
       },
       {
-        path: "content-management",
-        element: (
-          <h2>will have an “Add Blog” button at the top right corner</h2>
-        ),
+        path: "admin/content-management/add-blog",
+        element: <AddBlog />,
       },
       {
-        path: "all-blood-donation-request",
-        element: <h2>Most like my donation but show all req</h2>,
+        path: "admin/content-management/edit-blog/:id",
+        element: <EditBlog />,
+      },
+
+      // Donor Routes
+      {
+        path: "donor",
+        element: <DonorDashboard />,
       },
       {
-        path: "content-management/add-blog",
-        element: <h2>Add Blog</h2>,
+        path: "donor/my-donation-requests",
+        element: <MyDonationRequests />,
       },
       {
-        path: "all-blood-donation-request",
-        element: <h2>Most like my donation but show all req</h2>,
+        path: "donor/create-donation-request",
+        element: <CreateDonationRequest />,
       },
       {
-        path: "all-blood-donation-request",
-        element: <h2>Most like my donation but show all req</h2>,
+        path: "donor/edit-donation-request/:id",
+        element: <EditDonationRequest />,
+      },
+
+      // Volunteer Routes
+      {
+        path: "volunteer",
+        element: <VolunteerDashboard />,
       },
       {
-        path: "all-blood-donation-request",
-        element: <h2>Most like my donation but show all req</h2>,
+        path: "volunteer/all-donation-requests",
+        element: <VolunteerDonationRequests />,
+      },
+      {
+        path: "volunteer/all-donation-requests/:id",
+        element: <DonationRequestDetailsVolunteer />,
+      },
+      {
+        path: "profile/edit",
+        element: <EditProfile />,
       },
     ],
   },
