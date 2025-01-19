@@ -1,35 +1,19 @@
 import React, { useState } from "react";
-import { Editor, EditorState, RichUtils } from "draft-js";
-import "draft-js/dist/Draft.css"; // Default Draft.js styles
 import { Helmet } from "react-helmet-async";
 import Swal from "sweetalert2";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import { FiUpload } from "react-icons/fi";
+import { imageUpload } from "../../../api/utils"; // Ensure this function exists and works
+import { TbFidgetSpinner } from "react-icons/tb";
 
 const AddBlog = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const [uploadImage, setUploadImage] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null); // For image preview
   const [loading, setLoading] = useState(false);
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-
-  const handleEditorChange = (state) => {
-    setEditorState(state);
-  };
-
-  const handleKeyCommand = (command) => {
-    const newState = RichUtils.handleKeyCommand(editorState, command);
-    if (newState) {
-      setEditorState(newState);
-      return "handled";
-    }
-    return "not-handled";
-  };
-
-  const toggleInlineStyle = (style) => {
-    setEditorState(RichUtils.toggleInlineStyle(editorState, style));
-  };
+  const [blogContent, setBlogContent] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,16 +23,34 @@ const AddBlog = () => {
     const title = form.title.value;
     const category = form.category.value;
     const thumbnail = form.thumbnail.files[0];
-    const content = editorState.getCurrentContent().getPlainText(); // Extract plain text from editor
 
     try {
+      // Validate image file
+      if (!thumbnail) {
+        Swal.fire(
+          "Error!",
+          "Please upload an image for the thumbnail.",
+          "error"
+        );
+        setLoading(false);
+        return;
+      }
+
       // Upload thumbnail image
-      const thumbnailUrl = await imageUpload(thumbnail);
+      let thumbnailUrl = "";
+      try {
+        thumbnailUrl = await imageUpload(thumbnail); // Call your image upload function
+      } catch (err) {
+        console.error("Image upload failed:", err);
+        Swal.fire("Error!", "Image upload failed. Please try again.", "error");
+        setLoading(false);
+        return;
+      }
 
       // Prepare blog data
       const blogData = {
         title,
-        content,
+        content: blogContent,
         category,
         thumbnail: thumbnailUrl,
         author: {
@@ -59,22 +61,54 @@ const AddBlog = () => {
       };
 
       // Post blog data
-      await axiosSecure.post("/blogs", blogData);
-      Swal.fire(
-        "Success!",
-        "Your blog has been added successfully!",
-        "success"
-      );
+      const response = await axiosSecure.post("/blogs", blogData);
 
-      // Reset form and state
-      form.reset();
-      setEditorState(EditorState.createEmpty());
-      setUploadImage(null);
+      if (response.status === 200 || response.status === 201) {
+        Swal.fire(
+          "Success!",
+          "Your blog has been added successfully!",
+          "success"
+        );
+
+        // Reset form and state
+        form.reset();
+        setBlogContent("");
+        setUploadImage(null);
+        setPreviewImage(null);
+      }
     } catch (err) {
-      console.error(err);
-      Swal.fire("Error!", "Failed to add the blog. Please try again.", "error");
+      console.error("Failed to add the blog:", err);
+      Swal.fire(
+        "Error!",
+        "Failed to add the blog. Please try again or check your inputs.",
+        "error"
+      );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        Swal.fire("Error!", "Please upload a valid image file.", "error");
+        setUploadImage(null);
+        setPreviewImage(null);
+        return;
+      }
+      if (file.size > 2 * 1024 * 1024) {
+        // 2MB limit
+        Swal.fire("Error!", "Image size must be less than 2MB.", "error");
+        setUploadImage(null);
+        setPreviewImage(null);
+        return;
+      }
+      setUploadImage(file);
+      setPreviewImage(URL.createObjectURL(file));
+    } else {
+      setUploadImage(null);
+      setPreviewImage(null);
     }
   };
 
@@ -107,43 +141,22 @@ const AddBlog = () => {
 
           {/* Blog Content */}
           <div>
-            <label htmlFor="content" className="block text-lg font-semibold">
+            <label
+              htmlFor="blogContent"
+              className="block text-lg font-semibold"
+            >
               Blog Content
             </label>
-            <div
-              className="border border-gray-300 rounded-lg shadow-sm p-4"
-              style={{ minHeight: "300px" }}
-            >
-              <Editor
-                editorState={editorState}
-                onChange={handleEditorChange}
-                handleKeyCommand={handleKeyCommand}
-                placeholder="Write your blog content here..."
-              />
-            </div>
-            <div className="flex space-x-4 mt-2">
-              <button
-                type="button"
-                className="px-3 py-1 border rounded-md hover:bg-gray-100"
-                onClick={() => toggleInlineStyle("BOLD")}
-              >
-                Bold
-              </button>
-              <button
-                type="button"
-                className="px-3 py-1 border rounded-md hover:bg-gray-100"
-                onClick={() => toggleInlineStyle("ITALIC")}
-              >
-                Italic
-              </button>
-              <button
-                type="button"
-                className="px-3 py-1 border rounded-md hover:bg-gray-100"
-                onClick={() => toggleInlineStyle("UNDERLINE")}
-              >
-                Underline
-              </button>
-            </div>
+            <textarea
+              id="blogContent"
+              name="blogContent"
+              value={blogContent}
+              onChange={(e) => setBlogContent(e.target.value)}
+              required
+              className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-red-500"
+              placeholder="Write your blog content here..."
+              rows={10}
+            ></textarea>
           </div>
 
           {/* Category */}
@@ -174,12 +187,8 @@ const AddBlog = () => {
                 id="thumbnail"
                 name="thumbnail"
                 accept="image/*"
-                required
                 className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files[0];
-                  setUploadImage(file ? file : null);
-                }}
+                onChange={handleImageChange}
               />
               <label
                 htmlFor="thumbnail"
@@ -188,6 +197,13 @@ const AddBlog = () => {
                 <FiUpload className="mr-2" />
                 {uploadImage?.name || "Upload Image"}
               </label>
+              {previewImage && (
+                <img
+                  src={previewImage}
+                  alt="Preview"
+                  className="h-20 w-20 rounded-lg border border-gray-300"
+                />
+              )}
             </div>
           </div>
 
@@ -195,14 +211,18 @@ const AddBlog = () => {
           <div>
             <button
               type="submit"
-              disabled={loading}
-              className={`w-full px-4 py-3 text-white font-semibold rounded-lg ${
+              className={`w-full p-3 text-center font-medium text-white transition duration-200 rounded-lg shadow-md ${
                 loading
                   ? "bg-gray-500 cursor-not-allowed"
                   : "bg-red-600 hover:bg-red-700"
               }`}
+              disabled={loading}
             >
-              {loading ? "Loading..." : "Add Blog"}
+              {loading ? (
+                <TbFidgetSpinner className="animate-spin m-auto text-xl" />
+              ) : (
+                "Add Blog"
+              )}
             </button>
           </div>
         </form>
