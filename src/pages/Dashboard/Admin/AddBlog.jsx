@@ -1,132 +1,210 @@
-import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Editor, EditorState, RichUtils } from "draft-js";
+import "draft-js/dist/Draft.css"; // Default Draft.js styles
+import { Helmet } from "react-helmet-async";
 import Swal from "sweetalert2";
-import JoditEditor from "jodit-react";
+import useAuth from "../../../hooks/useAuth";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import { FiUpload } from "react-icons/fi";
 
 const AddBlog = () => {
-  const [title, setTitle] = useState("");
-  const [thumbnail, setThumbnail] = useState(null);
-  const [content, setContent] = useState("");
-  const editor = useRef(null);
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
+  const [uploadImage, setUploadImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [editorState, setEditorState] = useState(EditorState.createEmpty());
+
+  const handleEditorChange = (state) => {
+    setEditorState(state);
+  };
+
+  const handleKeyCommand = (command) => {
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+    if (newState) {
+      setEditorState(newState);
+      return "handled";
+    }
+    return "not-handled";
+  };
+
+  const toggleInlineStyle = (style) => {
+    setEditorState(RichUtils.toggleInlineStyle(editorState, style));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (!thumbnail) {
-      Swal.fire("Error", "Please upload a thumbnail image.", "error");
-      return;
-    }
-
-    // Upload thumbnail to imageBB and get the URL
-    let thumbnailUrl = "";
-    try {
-      const formData = new FormData();
-      formData.append("image", thumbnail);
-      const response = await fetch(
-        `https://api.imgbb.com/1/upload?key=YOUR_IMAGEBB_API_KEY`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      const data = await response.json();
-      thumbnailUrl = data.data.url;
-    } catch (err) {
-      console.error("Error uploading thumbnail:", err);
-      Swal.fire("Error", "Failed to upload thumbnail image.", "error");
-      return;
-    }
-
-    // Create a new blog
-    const newBlog = {
-      title,
-      thumbnail: thumbnailUrl,
-      content,
-      status: "draft", // Default status
-    };
+    const form = e.target;
+    const title = form.title.value;
+    const category = form.category.value;
+    const thumbnail = form.thumbnail.files[0];
+    const content = editorState.getCurrentContent().getPlainText(); // Extract plain text from editor
 
     try {
-      const response = await fetch("/api/blogs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      // Upload thumbnail image
+      const thumbnailUrl = await imageUpload(thumbnail);
+
+      // Prepare blog data
+      const blogData = {
+        title,
+        content,
+        category,
+        thumbnail: thumbnailUrl,
+        author: {
+          name: user?.displayName,
+          image: user?.photoURL,
+          email: user?.email,
         },
-        body: JSON.stringify(newBlog),
-      });
+      };
 
-      if (!response.ok) {
-        throw new Error("Failed to create blog.");
-      }
+      // Post blog data
+      await axiosSecure.post("/blogs", blogData);
+      Swal.fire(
+        "Success!",
+        "Your blog has been added successfully!",
+        "success"
+      );
 
-      Swal.fire("Success", "Blog created successfully!", "success");
-      navigate("/dashboard/content-management");
+      // Reset form and state
+      form.reset();
+      setEditorState(EditorState.createEmpty());
+      setUploadImage(null);
     } catch (err) {
-      console.error("Error creating blog:", err);
-      Swal.fire("Error", "Failed to create blog.", "error");
+      console.error(err);
+      Swal.fire("Error!", "Failed to add the blog. Please try again.", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
-      {/* Page Header */}
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Add Blog</h1>
-      <div className="bg-white shadow-md rounded-lg p-6 w-full max-w-3xl">
+    <div className="min-h-screen py-10">
+      <Helmet>
+        <title>Add Blog | Dashboard</title>
+      </Helmet>
+
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8">
+        <h1 className="text-3xl font-bold text-red-700 mb-6 text-center">
+          Add New Blog
+        </h1>
+
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Blog Title */}
+          {/* Title */}
           <div>
-            <label htmlFor="title" className="block font-medium text-gray-700">
+            <label htmlFor="title" className="block text-lg font-semibold">
               Blog Title
             </label>
             <input
-              id="title"
               type="text"
-              placeholder="Enter blog title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              id="title"
+              name="title"
               required
-              className="input input-bordered w-full"
-            />
-          </div>
-
-          {/* Thumbnail Upload */}
-          <div>
-            <label
-              htmlFor="thumbnail"
-              className="block font-medium text-gray-700"
-            >
-              Thumbnail Image
-            </label>
-            <input
-              id="thumbnail"
-              type="file"
-              accept="image/*"
-              onChange={(e) => setThumbnail(e.target.files[0])}
-              required
-              className="input input-bordered w-full"
+              className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-red-500"
+              placeholder="Enter your blog title"
             />
           </div>
 
           {/* Blog Content */}
           <div>
-            <label htmlFor="content" className="block font-medium text-gray-700">
+            <label htmlFor="content" className="block text-lg font-semibold">
               Blog Content
             </label>
-            <JoditEditor
-              ref={editor}
-              value={content}
-              onChange={(newContent) => setContent(newContent)}
-              className="border border-gray-300 rounded-md"
-            />
+            <div
+              className="border border-gray-300 rounded-lg shadow-sm p-4"
+              style={{ minHeight: "300px" }}
+            >
+              <Editor
+                editorState={editorState}
+                onChange={handleEditorChange}
+                handleKeyCommand={handleKeyCommand}
+                placeholder="Write your blog content here..."
+              />
+            </div>
+            <div className="flex space-x-4 mt-2">
+              <button
+                type="button"
+                className="px-3 py-1 border rounded-md hover:bg-gray-100"
+                onClick={() => toggleInlineStyle("BOLD")}
+              >
+                Bold
+              </button>
+              <button
+                type="button"
+                className="px-3 py-1 border rounded-md hover:bg-gray-100"
+                onClick={() => toggleInlineStyle("ITALIC")}
+              >
+                Italic
+              </button>
+              <button
+                type="button"
+                className="px-3 py-1 border rounded-md hover:bg-gray-100"
+                onClick={() => toggleInlineStyle("UNDERLINE")}
+              >
+                Underline
+              </button>
+            </div>
+          </div>
+
+          {/* Category */}
+          <div>
+            <label htmlFor="category" className="block text-lg font-semibold">
+              Category
+            </label>
+            <select
+              id="category"
+              name="category"
+              required
+              className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-red-500"
+            >
+              <option value="Health">Health</option>
+              <option value="Fitness">Fitness</option>
+              <option value="Nutrition">Nutrition</option>
+            </select>
+          </div>
+
+          {/* Image Upload */}
+          <div>
+            <label htmlFor="thumbnail" className="block text-lg font-semibold">
+              Blog Thumbnail
+            </label>
+            <div className="flex items-center mt-2 gap-4">
+              <input
+                type="file"
+                id="thumbnail"
+                name="thumbnail"
+                accept="image/*"
+                required
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  setUploadImage(file ? file : null);
+                }}
+              />
+              <label
+                htmlFor="thumbnail"
+                className="flex items-center px-4 py-2 bg-red-500 text-white rounded-lg cursor-pointer hover:bg-red-600"
+              >
+                <FiUpload className="mr-2" />
+                {uploadImage?.name || "Upload Image"}
+              </label>
+            </div>
           </div>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-          >
-            Create Blog
-          </button>
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full px-4 py-3 text-white font-semibold rounded-lg ${
+                loading
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-red-600 hover:bg-red-700"
+              }`}
+            >
+              {loading ? "Loading..." : "Add Blog"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

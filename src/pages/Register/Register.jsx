@@ -5,8 +5,8 @@ import Swal from "sweetalert2";
 import { updateProfile } from "firebase/auth";
 import registerBg from "../../assets/heart-214014_1920.jpg"; // Background image
 import { Helmet } from "react-helmet-async";
-import districtsData from "../../../public/districts.json";
-import upazilasData from "../../../public/upazilas.json";
+import districtsData from "../../assets/json/districts.json";
+import upazilasData from "../../assets/json/upazilas.json";
 import axios from "axios";
 import { imageUpload } from "../../api/utils";
 import useAuth from "../../hooks/useAuth";

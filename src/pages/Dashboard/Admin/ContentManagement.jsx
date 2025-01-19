@@ -12,7 +12,7 @@ const ContentManagement = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await fetch("/api/blogs");
+        const response = await fetch("/blogs");
         const data = await response.json();
         setBlogs(data);
       } catch (err) {
@@ -82,27 +82,31 @@ const ContentManagement = () => {
     filter === "all" ? blogs : blogs.filter((blog) => blog.status === filter);
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-6 bg-gradient-to-r from-[#F4F5F7] to-[#E6E8EB] min-h-screen">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Content Management</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-extrabold text-gray-800">
+          Content Management
+        </h1>
         <button
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center gap-2"
-          onClick={() => navigate("/dashboard/content-management/add-blog")}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-lg hover:bg-blue-700"
+          onClick={() =>
+            navigate("/dashboard/admin/content-management/add-blog")
+          }
         >
-          <FiPlus />
+          <FiPlus className="text-lg" />
           Add Blog
         </button>
       </div>
 
       {/* Filter Section */}
-      <div className="mb-4">
-        <label htmlFor="filter" className="text-gray-700 font-semibold">
+      <div className="mb-6">
+        <label htmlFor="filter" className="text-lg font-semibold text-gray-700">
           Filter by Status:
         </label>
         <select
           id="filter"
-          className="ml-2 border border-gray-300 rounded-md p-2"
+          className="ml-4 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         >
@@ -113,40 +117,42 @@ const ContentManagement = () => {
       </div>
 
       {/* Blogs List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredBlogs.map((blog) => (
           <div
             key={blog.id}
-            className="bg-white shadow-md rounded-lg p-4 flex flex-col"
+            className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between"
           >
             {/* Blog Thumbnail */}
-            <img
-              src={blog.thumbnail}
-              alt={blog.title}
-              className="rounded-lg mb-4 object-cover h-40 w-full"
-            />
-
-            {/* Blog Title */}
-            <h3 className="text-xl font-semibold text-gray-800">
-              {blog.title}
-            </h3>
-            <p className="text-sm text-gray-600 mt-2">
-              Status:{" "}
-              <span
-                className={`font-medium ${
-                  blog.status === "published"
-                    ? "text-green-500"
-                    : "text-yellow-500"
-                }`}
-              >
-                {blog.status}
-              </span>
-            </p>
+            <div>
+              <img
+                src={blog.thumbnail}
+                alt={blog.title}
+                className="rounded-lg mb-4 object-cover h-40 w-full"
+              />
+              {/* Blog Title */}
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                {blog.title}
+              </h3>
+              {/* Blog Status */}
+              <p className="text-sm font-medium text-gray-600">
+                Status:{" "}
+                <span
+                  className={`font-semibold ${
+                    blog.status === "published"
+                      ? "text-green-500"
+                      : "text-yellow-500"
+                  }`}
+                >
+                  {blog.status}
+                </span>
+              </p>
+            </div>
 
             {/* Actions */}
-            <div className="mt-auto flex justify-between items-center">
+            <div className="mt-4 flex justify-between items-center">
               <button
-                className={`px-4 py-2 text-white rounded-lg ${
+                className={`flex-1 px-4 py-2 text-white font-medium rounded-lg shadow-md ${
                   blog.status === "draft"
                     ? "bg-green-500 hover:bg-green-600"
                     : "bg-yellow-500 hover:bg-yellow-600"
@@ -160,9 +166,9 @@ const ContentManagement = () => {
               >
                 {blog.status === "draft" ? "Publish" : "Unpublish"}
               </button>
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
                 <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
                   onClick={() =>
                     navigate(
                       `/dashboard/content-management/edit-blog/${blog.id}`
@@ -172,7 +178,7 @@ const ContentManagement = () => {
                   <FiEdit />
                 </button>
                 <button
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600"
                   onClick={() => handleDelete(blog.id)}
                 >
                   <FiTrash />

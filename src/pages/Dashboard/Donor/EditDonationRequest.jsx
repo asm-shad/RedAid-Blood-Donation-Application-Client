@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import districtsData from "../../../../public/districts.json";
-import upazilasData from "../../../../public/upazilas.json";
+import districtsData from "../../../assets/json/districts.json";
+import upazilasData from "../../../assets/json/upazilas.json";
 import useAuth from "../../../hooks/useAuth";
 
 const EditDonationRequest = () => {

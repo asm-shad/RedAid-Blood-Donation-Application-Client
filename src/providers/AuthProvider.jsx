@@ -10,6 +10,7 @@ import {
 } from "firebase/auth";
 import { app } from "../firebase/firebase.cinfig";
 import axios from "axios";
+import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
 
 export const AuthContext = createContext(null);
 const googleProvider = new GoogleAuthProvider();
@@ -61,15 +62,32 @@ const AuthProvider = ({ children }) => {
       console.log("CurrentUser-->", currentUser?.email);
       if (currentUser?.email) {
         setUser(currentUser);
-        // save user info in db
+
+        // Fetch user data from the database (including status)
+        try {
+          const userResponse = await axios.get(
+            `${import.meta.env.VITE_API_URL}/users/${currentUser?.email}`
+          );
+          // Assuming the response contains the status field
+          const updatedUser = {
+            ...currentUser,
+            status: userResponse.data.status, // Add status from DB
+          };
+          setUser(updatedUser);
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+
+        // Save user info in DB
         await axios.post(
           `${import.meta.env.VITE_API_URL}/users/${currentUser?.email}`,
           {
             name: currentUser?.displayName,
-            image: currentUser?.photoURL,  
+            image: currentUser?.photoURL,
             email: currentUser?.email,
           }
         );
+
         // Get JWT token
         await axios.post(
           `${import.meta.env.VITE_API_URL}/jwt`,
@@ -101,6 +119,7 @@ const AuthProvider = ({ children }) => {
     updateUserProfile,
     signInWithGoogle,
   };
+
   return (
     <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>
   );
