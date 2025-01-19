@@ -16,7 +16,7 @@ const BlogDetails = () => {
         return response.json();
       })
       .then((data) => {
-        const foundBlog = data.find((b) => b.id === parseInt(id));
+        const foundBlog = data.find((b) => b.id === id); // Match ID as a string
         if (foundBlog) {
           setBlog(foundBlog);
         } else {
@@ -46,23 +46,56 @@ const BlogDetails = () => {
   }
 
   return (
-    <div className="mx-auto py-8 px-4 bg-gradient-to-r from-red-500 to-yellow-500">
-      <div className="container mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-        {/* Improve image quality with proper scaling */}
-        <img
-          src={blog.thumbnail}
-          alt={blog.title}
-          className="w-full h-[350px] object-cover" // Ensure the image scales correctly
-          loading="lazy" // Lazy load the image for performance
-        />
-        <div className="p-6">
-          <h1 className="text-3xl font-bold mb-4">{blog.title}</h1>
-          <p className="text-gray-800 leading-relaxed h-auto">
-            {blog.content}
-          </p>{" "}
-          {/* Adjust height as needed */}
+    <div className="bg-gray-100 min-h-screen">
+      {/* Banner Section */}
+      <div
+        className="relative bg-gray-800 text-white"
+        style={{
+          backgroundImage: `url(${blog.thumbnail})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="bg-black bg-opacity-50 h-full w-full absolute"></div>
+        <div className="relative container mx-auto px-4 py-20 text-center">
+          <h1 className="text-4xl font-extrabold mb-4">{blog.title}</h1>
+          <p className="text-lg italic">Category: {blog.category}</p>
         </div>
       </div>
+
+      {/* Blog Content Section */}
+      <div className="container mx-auto py-12 px-4 lg:px-20">
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <div className="flex items-center space-x-4 mb-6">
+            {/* Author Info */}
+            <img
+              src={blog.author.image}
+              alt={blog.author.name}
+              className="w-14 h-14 rounded-full object-cover shadow-md"
+            />
+            <div>
+              <p className="text-lg font-bold">{blog.author.name}</p>
+              <p className="text-gray-500 text-sm">{blog.author.email}</p>
+            </div>
+          </div>
+          {/* Blog Content */}
+          <div className="prose max-w-none">
+            <p className="text-gray-800 leading-relaxed">{blog.content}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Section */}
+      <footer className="bg-gray-800 text-white py-6">
+        <div className="container mx-auto text-center">
+          <p className="text-sm">
+            © {new Date().getFullYear()} My Blog Website. All rights reserved.
+          </p>
+          <p className="mt-2 text-gray-400">
+            Sharing insights, knowledge, and inspiration through blogs.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

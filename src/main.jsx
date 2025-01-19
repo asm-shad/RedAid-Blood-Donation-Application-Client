@@ -3,22 +3,26 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./Routes/Routes";
-import { HelmetProvider } from "react-helmet-async";
 import AuthProvider from "./providers/AuthProvider";
-import { ToastContainer } from "react-toastify"; // Import ToastContainer
-import "react-toastify/dist/ReactToastify.css"; // Import Toastify styles
+import { HelmetProvider } from "react-helmet-async";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"; // Import QueryClient
+import { Toaster } from "react-hot-toast"; // Import Toaster for toast notifications
+import "react-toastify/dist/ReactToastify.css"; // Optional: if Toastify styles are needed
+
+// Create a QueryClient instance
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <AuthProvider>
       <HelmetProvider>
-        <div className="mx-auto">
+        <QueryClientProvider client={queryClient}>
+          {/* Router for the application */}
           <RouterProvider router={router} />
-        </div>
+        </QueryClientProvider>
+        {/* Toast notifications */}
+        <Toaster position="top-right" reverseOrder={false} />
       </HelmetProvider>
     </AuthProvider>
-
-    {/* Add ToastContainer to render toasts globally */}
-    <ToastContainer />
   </StrictMode>
 );

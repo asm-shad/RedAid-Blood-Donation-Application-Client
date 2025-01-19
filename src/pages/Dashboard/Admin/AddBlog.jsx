@@ -6,6 +6,7 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import { FiUpload } from "react-icons/fi";
 import { imageUpload } from "../../../api/utils"; // Ensure this function exists and works
 import { TbFidgetSpinner } from "react-icons/tb";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 
 const AddBlog = () => {
   const { user } = useAuth();
@@ -88,6 +89,14 @@ const AddBlog = () => {
     }
   };
 
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner></LoadingSpinner>
+      </div>
+    );
+  }
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -120,7 +129,7 @@ const AddBlog = () => {
 
       <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg p-8">
         <h1 className="text-3xl font-bold text-red-700 mb-6 text-center">
-          Add New Blog
+          Add New Health & Blood Blog
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -226,6 +235,13 @@ const AddBlog = () => {
             </button>
           </div>
         </form>
+        {/* Motivational Quote */}
+        <div className="mt-12 text-center">
+          <p className="text-xl font-semibold text-gray-700">
+            “Your donation can save lives. Spread awareness and inspire others.”
+          </p>
+          <span className="block mt-2 text-gray-500">– Anonymous</span>
+        </div>
       </div>
     </div>
   );
