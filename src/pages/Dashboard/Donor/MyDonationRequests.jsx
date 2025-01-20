@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import useAuth from "../../../hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 
 const MyDonationRequests = () => {
   const { user } = useAuth(); // Get the current logged-in user
@@ -7,51 +10,20 @@ const MyDonationRequests = () => {
   const [filter, setFilter] = useState("all"); // Status filter
   const [currentPage, setCurrentPage] = useState(1); // Pagination
   const itemsPerPage = 5; // Number of rows per page
+  const axiosSecure = useAxiosSecure();
 
-  // Fetch data (replace with real API call later)
-  useEffect(() => {
-    // Simulate fetching data from an API
-    const fetchedRequests = [
-      {
-        id: 1,
-        recipientName: "John Doe",
-        location: "Dhaka, Gulshan",
-        date: "2025-01-20",
-        time: "10:00 AM",
-        bloodGroup: "A+",
-        status: "pending",
-      },
-      {
-        id: 2,
-        recipientName: "Jane Smith",
-        location: "Chittagong, Agrabad",
-        date: "2025-01-18",
-        time: "2:00 PM",
-        bloodGroup: "O+",
-        status: "inprogress",
-      },
-      {
-        id: 3,
-        recipientName: "Ali Ahmed",
-        location: "Sylhet, Zindabazar",
-        date: "2025-01-16",
-        time: "11:00 AM",
-        bloodGroup: "B+",
-        status: "done",
-      },
-      {
-        id: 4,
-        recipientName: "Sara Khan",
-        location: "Rajshahi, Boalia",
-        date: "2025-01-10",
-        time: "3:00 PM",
-        bloodGroup: "AB+",
-        status: "canceled",
-      },
-      // Add more mock data here
-    ];
-    setDonationRequests(fetchedRequests);
-  }, []);
+  const { data: requestDetails = {}, isLoading: isLoadingRequest } = useQuery({
+    queryKey: ["donationRequest", user?.email],
+    queryFn: async () => {
+      const { data } = await axiosSecure(
+        `/my-donation-requests/${user?.email}`
+      );
+      return data;
+    },
+  });
+
+  console.log(requestDetails);
+  if (isLoadingRequest) return <LoadingSpinner></LoadingSpinner>;
 
   // Filtered Data
   const filteredRequests =

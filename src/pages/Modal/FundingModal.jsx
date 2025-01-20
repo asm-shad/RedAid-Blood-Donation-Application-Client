@@ -6,9 +6,9 @@ import {
   DialogPanel,
   DialogTitle,
   Menu,
-  MenuButton, // Import Menu
+  MenuButton,
 } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
@@ -21,20 +21,50 @@ const FundingModal = ({ closeModal, isOpen, refetch }) => {
   const axiosSecure = useAxiosSecure();
   const [donationAmount, setDonationAmount] = useState(5);
   const [fundingInfo, setFundingInfo] = useState({
-    userId: user?._id,
-    name: user?.name,
-    email: user?.email,
-    role: user?.role,
-    status: user?.status,
+    userId: "",
+    name: "",
+    email: user?.email || "",
+    role: "",
+    status: "Pending",
     amount: donationAmount,
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch user info from the backend
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (!user?.email) return;
+
+      try {
+        const response = await axiosSecure.get(`/users/${user.email}`);
+        if (response.data) {
+          setFundingInfo({
+            userId: response.data._id,
+            name: response.data.name,
+            email: response.data.email,
+            role: response.data.role,
+            status: response.data.status,
+            amount: donationAmount,
+          });
+        }
+        setLoading(false);
+      } catch (err) {
+        setError("Error fetching user data");
+        setLoading(false);
+        console.error("Error fetching user:", err);
+      }
+    };
+
+    fetchUserInfo();
+  }, [user?.email, donationAmount, axiosSecure]);
 
   // Handle input change for donation amount
   const handleAmountChange = (e) => {
     const value = parseFloat(e.target.value);
-    if (value > 5) {
+    if (value < 5) {
       setDonationAmount(5);
-      return toast.error("Maximum donation is $5");
+      return toast.error("Minimum donation is $5");
     }
     setDonationAmount(value);
     setFundingInfo((prev) => ({ ...prev, amount: value }));
@@ -42,20 +72,38 @@ const FundingModal = ({ closeModal, isOpen, refetch }) => {
 
   // Handle donation submission
   const handleDonate = async () => {
+    console.table(fundingInfo);
+    //   Uncomment the donation logic when ready
     if (user?.status !== "active") {
       return toast.error("Your account is not active. Please contact support.");
     }
 
     try {
-      await axiosSecure.post("/api/donations", fundingInfo);
+      await axiosSecure.post("/fund", fundingInfo);
       toast.success("Donation Successful!");
-      refetch();
+    //   refetch();
       closeModal();
     } catch (err) {
       console.error("Error donating funds:", err);
       toast.error("An error occurred. Please try again.");
     }
   };
+
+  if (loading) {
+    return (
+      <Dialog open={isOpen} onClose={closeModal}>
+        <DialogTitle>Loading...</DialogTitle>
+      </Dialog>
+    );
+  }
+
+  if (error) {
+    return (
+      <Dialog open={isOpen} onClose={closeModal}>
+        <DialogTitle>Error: {error}</DialogTitle>
+      </Dialog>
+    );
+  }
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -92,9 +140,11 @@ const FundingModal = ({ closeModal, isOpen, refetch }) => {
                 </DialogTitle>
 
                 <div className="mt-2 text-center">
-                  <p className="text-sm text-gray-500">User: {user?.email}</p>
                   <p className="text-sm text-gray-500">
-                    Status: {user?.status}
+                    User: {fundingInfo.email}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    Status: {fundingInfo.status}
                   </p>
                 </div>
 
@@ -111,8 +161,7 @@ const FundingModal = ({ closeModal, isOpen, refetch }) => {
                     id="donation-amount"
                     value={donationAmount}
                     onChange={handleAmountChange}
-                    min="1"
-                    max="5"
+                    min="5"
                     className="mt-2 p-2 text-gray-800 border border-gray-300 rounded-md w-full"
                     placeholder="Enter amount (Max $5)"
                     required
@@ -123,7 +172,7 @@ const FundingModal = ({ closeModal, isOpen, refetch }) => {
                 <div className="mt-4">
                   <Menu>
                     <MenuButton
-                      as={Button} // Using custom Button component
+                      as={Button}
                       onClick={handleDonate}
                       label={`Donate $${donationAmount}`}
                     />

@@ -39,14 +39,14 @@ const CreateDonationRequest = () => {
     setLoading(true);
     e.preventDefault();
 
-    if (!user || user?.status !== "active") {
-      Swal.fire(
-        "Access Denied",
-        "Blocked users cannot create requests.",
-        "error"
-      );
-      return;
-    }
+    // if (!user || user?.status !== "active") {
+    //   Swal.fire(
+    //     "Access Denied",
+    //     "Blocked users cannot create requests.",
+    //     "error"
+    //   );
+    //   return;
+    // }
 
     const form = e.target;
     const newRequest = {

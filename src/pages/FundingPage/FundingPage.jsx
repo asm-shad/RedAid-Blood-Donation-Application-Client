@@ -3,32 +3,38 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import useAuth from "../../hooks/useAuth";
 import FundingModal from "../Modal/FundingModal";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import { Helmet } from "react-helmet-async"; // Import Helmet for SEO
 
 const FundingPage = () => {
-  const [funds, setFunds] = useState([]); // Store funding data
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const itemsPerPage = 5; // Number of rows per page
-  const [totalFunds, setTotalFunds] = useState(0); // Total funds
+  const [totalFunds, setTotalFunds] = useState(0); // Total funds calculated
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
   const { user } = useAuth(); // Authentication and user info
   const navigate = useNavigate();
 
-  // Fetch all funding records and total funds
-  useEffect(() => {
-    const fetchFunds = async () => {
-      try {
-        const response = await fetch("/api/funds");
-        const data = await response.json();
-        setFunds(data.funds);
-        setTotalFunds(data.total); // Total funds received
-      } catch (err) {
-        console.error("Error fetching funding data:", err);
-        Swal.fire("Error", "Unable to fetch funding data.", "error");
-      }
-    };
+  // Fetch all funding records and calculate total funds
+  const {
+    data: funds,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["funds"],
+    queryFn: async () => {
+      const { data } = await axios(`${import.meta.env.VITE_API_URL}/funds`);
+      return data;
+    },
+  });
 
-    fetchFunds();
-  }, []);
+  // Update total funds when the `funds` data changes
+  useEffect(() => {
+    if (funds) {
+      const total = funds.reduce((acc, fund) => acc + fund.amount, 0);
+      setTotalFunds(total);
+    }
+  }, [funds]);
 
   // Handle Give Fund Button (open modal)
   const handleGiveFund = () => {
@@ -47,12 +53,13 @@ const FundingPage = () => {
   };
 
   // Pagination logic
-  const totalItems = funds.length;
+  const totalItems = funds?.length || 0; // If funds is undefined, it defaults to 0
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const paginatedFunds = funds.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedFunds =
+    funds?.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    ) || []; // Fallback to an empty array if funds is undefined
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -60,6 +67,20 @@ const FundingPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
+      {/* Helmet for SEO */}
+      <Helmet>
+        <title>Funding Page | Donate Now</title>
+        <meta
+          name="description"
+          content="Support our cause by donating funds to help those in need. Your donation can make a difference."
+        />
+        <meta
+          name="keywords"
+          content="donate, charity, fundraising, help, support"
+        />
+        <meta name="author" content="My Charity Organization" />
+      </Helmet>
+
       {/* Page Header */}
       <div className="flex justify-between items-center w-full max-w-6xl mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Funding Page</h1>
@@ -89,18 +110,20 @@ const FundingPage = () => {
               <th className="py-2 px-4">Funding Date</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="text-center">
             {paginatedFunds.length > 0 ? (
               paginatedFunds.map((fund) => (
                 <tr
-                  key={fund.id}
+                  key={fund._id}
                   className="border-b text-gray-700 hover:bg-gray-100"
                 >
-                  <td className="py-2 px-4">{fund.name}</td>
+                  <td className="py-2 px-4">{fund.name || "Anonymous"}</td>
                   <td className="py-2 px-4 text-green-500 font-bold">
                     ${fund.amount}
                   </td>
-                  <td className="py-2 px-4">{fund.date}</td>
+                  <td className="py-2 px-4">
+                    {new Date(fund.timestamp).toLocaleString()}
+                  </td>
                 </tr>
               ))
             ) : (
@@ -141,8 +164,16 @@ const FundingPage = () => {
         isOpen={isModalOpen}
         closeModal={() => setIsModalOpen(false)}
         user={user}
-        refetch={() => fetchFunds()} // refetch funds after donation
+        refetch={refetch} // refetch funds after donation
       />
+
+      {/* Motivational Quote */}
+      <div className="my-12 text-center">
+        <p className="text-xl font-semibold text-gray-700">
+          “Your donation can save lives. Spread awareness and inspire others.”
+        </p>
+        <span className="block mt-2 text-gray-500">– Anonymous</span>
+      </div>
     </div>
   );
 };

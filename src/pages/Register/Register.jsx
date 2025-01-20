@@ -8,7 +8,7 @@ import { Helmet } from "react-helmet-async";
 import districtsData from "../../assets/json/districts.json";
 import upazilasData from "../../assets/json/upazilas.json";
 import axios from "axios";
-import { imageUpload } from "../../api/utils";
+import { imageUpload, saveUser } from "../../api/utils";
 import useAuth from "../../hooks/useAuth";
 import { TbFidgetSpinner } from "react-icons/tb";
 
@@ -82,7 +82,7 @@ const Register = () => {
         photoURL,
       });
 
-      // Save user info to the database
+      // Create a new user object to pass to saveUser
       const newUser = {
         name,
         email,
@@ -93,6 +93,9 @@ const Register = () => {
         status: "active",
         role: "donor",
       };
+
+      // Save user info to the database via saveUser function
+      await saveUser(newUser);
 
       // Update AuthContext (if used)
       setUser({
