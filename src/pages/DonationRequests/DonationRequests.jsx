@@ -43,11 +43,6 @@ const DonationRequests = () => {
 
   // Handle view button click
   const handleView = (id) => {
-    Swal.fire(
-      "Information",
-      "You can view more details on the next page.",
-      "info"
-    );
     navigate(`/donation-requests/${id}`);
   };
 

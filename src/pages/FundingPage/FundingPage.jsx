@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import useAuth from "../../hooks/useAuth";
+import FundingModal from "../Modal/FundingModal";
 
 const FundingPage = () => {
   const [funds, setFunds] = useState([]); // Store funding data
   const [currentPage, setCurrentPage] = useState(1); // Pagination state
   const itemsPerPage = 5; // Number of rows per page
   const [totalFunds, setTotalFunds] = useState(0); // Total funds
-  const { isAuthenticated, user } = useAuth(); // Authentication and user info
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const { user } = useAuth(); // Authentication and user info
   const navigate = useNavigate();
 
   // Fetch all funding records and total funds
@@ -28,13 +30,19 @@ const FundingPage = () => {
     fetchFunds();
   }, []);
 
-  // Handle Give Fund Button (Redirect to payment page)
+  // Handle Give Fund Button (open modal)
   const handleGiveFund = () => {
-    if (!isAuthenticated) {
+    if (!user) {
       Swal.fire("Unauthorized", "Please login to give funding.", "warning");
       navigate("/login"); // Redirect to login if user is not logged in
+    } else if (user?.status !== "active") {
+      Swal.fire(
+        "Inactive Account",
+        "You must have an active account to donate.",
+        "warning"
+      );
     } else {
-      navigate("/dashboard/give-fund"); // Redirect to funding (Stripe) page
+      setIsModalOpen(true); // Open the modal if user is eligible
     }
   };
 
@@ -127,6 +135,14 @@ const FundingPage = () => {
           ))}
         </div>
       )}
+
+      {/* Fund Modal */}
+      <FundingModal
+        isOpen={isModalOpen}
+        closeModal={() => setIsModalOpen(false)}
+        user={user}
+        refetch={() => fetchFunds()} // refetch funds after donation
+      />
     </div>
   );
 };
