@@ -28,8 +28,8 @@ const MyDonationRequests = () => {
   // Filtered Data
   const filteredRequests =
     filter === "all"
-      ? donationRequests
-      : donationRequests.filter((request) => request.status === filter);
+      ? requestDetails
+      : requestDetails.filter((request) => request.status === filter);
 
   // Pagination Logic
   const totalItems = filteredRequests.length;
@@ -86,12 +86,12 @@ const MyDonationRequests = () => {
             {paginatedRequests.map((request) => (
               <tr
                 key={request.id}
-                className="border-b text-gray-700 hover:bg-gray-100"
+                className="border-b text-gray-700 hover:bg-gray-100 text-center"
               >
                 <td className="py-2 px-4">{request.recipientName}</td>
-                <td className="py-2 px-4">{request.location}</td>
-                <td className="py-2 px-4">{request.date}</td>
-                <td className="py-2 px-4">{request.time}</td>
+                <td className="py-2 px-4">{request.fullAddress}</td>
+                <td className="py-2 px-4">{request.donationDate}</td>
+                <td className="py-2 px-4">{request.donationTime}</td>
                 <td className="py-2 px-4">{request.bloodGroup}</td>
                 <td
                   className={`py-2 px-4 font-semibold ${

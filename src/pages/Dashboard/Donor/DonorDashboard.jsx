@@ -8,52 +8,24 @@ import {
   FaTimesCircle,
 } from "react-icons/fa"; // React Icons for actions
 import useAuth from "../../../hooks/useAuth";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
 
 const DonorDashboard = () => {
   const { user } = useAuth(); // Access user from AuthContext
-  const [recentRequests, setRecentRequests] = useState([
-    {
-      id: 1,
-      recipientName: "John Doe",
-      recipientLocation: "Dhaka, Gulshan",
-      donationDate: "2025-01-20",
-      donationTime: "10:00 AM",
-      bloodGroup: "A+",
-      donationStatus: "inprogress", // Only this will show the action buttons
-      donorInfo: {
-        name: "Donor Name",
-        email: "donor@example.com",
-      },
-    },
-    {
-      id: 2,
-      recipientName: "Jane Smith",
-      recipientLocation: "Chittagong, Agrabad",
-      donationDate: "2025-01-15",
-      donationTime: "12:00 PM",
-      bloodGroup: "O+",
-      donationStatus: "done",
-      donorInfo: null,
-    },
-    {
-      id: 3,
-      recipientName: "Mark Taylor",
-      recipientLocation: "Sylhet, Ambarkhana",
-      donationDate: "2025-01-10",
-      donationTime: "3:00 PM",
-      bloodGroup: "B-",
-      donationStatus: "pending",
-      donorInfo: null,
-    },
-  ]);
+  const axiosSecure = useAxiosSecure();
 
-  useEffect(() => {
-    if (user) {
-      // Example: Fetch recent donation requests from backend
-      // Use the user.email or other details if required
-    }
-  }, [user]);
+  const { data: recentRequests = [], isLoading: isLoadingRecent } = useQuery({
+    queryKey: ["donationRequestRecent", user?.email],
+    queryFn: async () => {
+      const { data } = await axiosSecure(
+        `/my-donation-requests/${user?.email}?limit=3`
+      );
+      return data;
+    },
+  });
 
+  console.log(recentRequests);
   return (
     <div className="p-4">
       {/* Welcome Section with Motivational Quote */}
@@ -89,7 +61,7 @@ const DonorDashboard = () => {
               <tbody>
                 {recentRequests.map((request, index) => (
                   <tr
-                    key={request.id}
+                    key={index}
                     className={`hover:bg-gray-50 ${
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     }`}
@@ -98,7 +70,7 @@ const DonorDashboard = () => {
                       {request.recipientName}
                     </td>
                     <td className="border border-gray-300 p-2">
-                      {request.recipientLocation}
+                      {request.hospitalName}
                     </td>
                     <td className="border border-gray-300 p-2">
                       {request.donationDate}
@@ -110,7 +82,7 @@ const DonorDashboard = () => {
                       {request.bloodGroup}
                     </td>
                     <td className="border border-gray-300 p-2">
-                      {request.donationStatus}
+                      {request.status}
                       {/* In-progress donation status shows action icons below */}
                       {request.donationStatus === "inprogress" && (
                         <div className="flex space-x-2 mb-2">
