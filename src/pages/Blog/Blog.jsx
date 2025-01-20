@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
@@ -13,22 +13,8 @@ const Blog = () => {
       return data;
     },
   });
+
   if (isLoading) return <LoadingSpinner />;
-
-  // const [blogs, setBlogs] = useState([]);
-
-  // useEffect(() => {
-  //   // Fetch blogs.json from the public folder
-  //   fetch("/blogs.json")
-  //     .then((response) => {
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch blogs.");
-  //       }
-  //       return response.json();
-  //     })
-  //     .then((data) => setBlogs(data))
-  //     .catch((error) => console.error("Error fetching blogs:", error));
-  // }, []);
 
   return (
     <div>
@@ -73,24 +59,29 @@ const Blog = () => {
       </header>
 
       {/* Blog List Section */}
-      <div className="container mx-auto py-8 px-4" id="blogs">
-        <h2 className="text-3xl font-bold mb-6 text-center">Published Blogs</h2>
-        <div className="grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          {blogs.map((blog) => (
+      <div className="min-h-screen bg-gray-100 py-10" id="requests">
+        <div className="container mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {blogs?.map((blog) => (
             <div
               key={blog._id}
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition"
             >
               <img
-                src={blog.thumbnail}
-                alt={blog.title}
+                src={blog.thumbnail || "https://via.placeholder.com/150"}
+                alt={blog.title || "Blog thumbnail"}
                 className="w-full h-48 object-cover"
               />
               <div className="p-4">
-                <h3 className="text-xl font-bold mb-2">{blog.title}</h3>
-                <p className="text-gray-600">{blog.content.slice(0, 100)}...</p>
+                <h3 className="text-xl font-bold mb-2">
+                  {blog.title || "Untitled Blog"}
+                </h3>
+                <p className="text-gray-600">
+                  {blog.content
+                    ? blog.content.slice(0, 100) + "..."
+                    : "No content available."}
+                </p>
                 <Link
-                  to={`/blog/${blog.id}`}
+                  to={`/blog/${blog._id}`}
                   className="mt-4 inline-block text-red-600 hover:underline font-medium"
                 >
                   Read More →
@@ -99,6 +90,13 @@ const Blog = () => {
             </div>
           ))}
         </div>
+      </div>
+      {/* Motivational Quote */}
+      <div className="my-12 text-center">
+        <p className="text-xl font-semibold text-gray-700">
+          “Your donation can save lives. Spread awareness and inspire others.”
+        </p>
+        <span className="block mt-2 text-gray-500">– Anonymous</span>
       </div>
     </div>
   );

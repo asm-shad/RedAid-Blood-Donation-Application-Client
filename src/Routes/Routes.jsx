@@ -35,7 +35,8 @@ import VolunteerDonationRequests from "../pages/Dashboard/Volunteer/AllDonationR
 // Profile Page
 import EditProfile from "../pages/EditProfile/EditProfile";
 import Profile from "../pages/Dashboard/Common/Profile";
-import DonationRequestDetails from "../pages/Dashboard/Admin/DonationRequestDetails";
+import AllDonationRequestDetails from "../pages/Dashboard/Admin/AllDonationRequestDetails";
+import DonationRequestDetails from "../pages/DonationRequests/DonationRequestDetails";
 
 export const router = createBrowserRouter([
   // Public Routes
@@ -72,6 +73,10 @@ export const router = createBrowserRouter([
         element: <DonationRequests />,
       },
       {
+        path: "/donation-requests/:id",
+        element: <DonationRequestDetails />,
+      },
+      {
         path: "/funding-links",
         element: <FundingPage />,
       },
@@ -106,7 +111,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "admin/all-donation-requests/:id",
-        element: <DonationRequestDetails />,
+        element: <AllDonationRequestDetails />,
       },
       {
         path: "admin/content-management",
@@ -148,10 +153,10 @@ export const router = createBrowserRouter([
         path: "volunteer/all-donation-requests",
         element: <VolunteerDonationRequests />,
       },
-      {
-        path: "volunteer/all-donation-requests/:id",
-        element: <DonationRequestDetails />,
-      },
+      // {
+      //   path: "volunteer/all-donation-requests/:id",
+      //   element: <DonationRequestDetails />,
+      // },
       {
         path: "profile/edit",
         element: <EditProfile />,

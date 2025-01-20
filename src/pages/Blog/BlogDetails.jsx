@@ -1,102 +1,145 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
+import Container from "../../components/Container/Container";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+import Button from "../../components/Button/Button";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import Heading from "../../components/Heading/Heading";
+import { FaQuoteLeft } from "react-icons/fa";
 
 const BlogDetails = () => {
   const { id } = useParams(); // Get blog ID from URL
-  const [blog, setBlog] = useState(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    // Fetch blogs.json from the public folder
-    fetch("/blogs.json")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch blogs.");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        const foundBlog = data.find((b) => b.id === id); // Match ID as a string
-        if (foundBlog) {
-          setBlog(foundBlog);
-        } else {
-          setError("Blog Not Found");
-        }
-      })
-      .catch((error) => setError(error.message));
-  }, [id]);
+  // Blog data query
+  const { data: blog = {}, isLoading } = useQuery({
+    queryKey: ["blog", id],
+    queryFn: async () => {
+      try {
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_URL}/blogs/${id}`
+        );
+        return data;
+      } catch (err) {
+        setError("Failed to fetch blog data");
+        console.error(err);
+        return {}; // Return empty object in case of error
+      }
+    },
+  });
+
+  // Quote data query
+  const { data: quoteData = {}, isLoading: isLoadingQuote } = useQuery({
+    queryKey: ["quote"],
+    queryFn: async () => {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/quote`);
+      return data;
+    },
+  });
+
+  // Safely extract quote and author with fallback values
+  const {
+    quote = "Giving is not just about making a donation.",
+    author = "Unknown",
+  } = quoteData;
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <h2 className="text-2xl font-bold text-red-600">{error}</h2>
-        <p className="text-gray-600">
-          The blog you are looking for does not exist.
-        </p>
-      </div>
+      <Container>
+        <Helmet>
+          <title>Error</title>
+        </Helmet>
+        <div className="text-center py-8">
+          <h2 className="text-2xl font-bold text-red-600">{error}</h2>
+          <p className="text-gray-600">
+            The blog you are looking for does not exist.
+          </p>
+        </div>
+      </Container>
     );
   }
 
-  if (!blog) {
+  if (isLoading) {
     return (
-      <div className="text-center py-8">
-        <h2 className="text-2xl font-bold text-gray-600">Loading...</h2>
-      </div>
+      <Container>
+        <Helmet>
+          <title>Loading...</title>
+        </Helmet>
+        <div className="text-center py-8">
+          <LoadingSpinner />
+        </div>
+      </Container>
     );
   }
+
+  // Destructure blog data safely
+  const { title, category, thumbnail, author: blogAuthor = {}, content } = blog;
+  const { name = "Unknown Author", image = "" } = blogAuthor;
 
   return (
-    <div className="bg-gray-100 min-h-screen">
-      {/* Banner Section */}
-      <div
-        className="relative bg-gray-800 text-white"
-        style={{
-          backgroundImage: `url(${blog.thumbnail})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="bg-black bg-opacity-50 h-full w-full absolute"></div>
-        <div className="relative container mx-auto px-4 py-20 text-center">
-          <h1 className="text-4xl font-extrabold mb-4">{blog.title}</h1>
-          <p className="text-lg italic">Category: {blog.category}</p>
-        </div>
-      </div>
-
-      {/* Blog Content Section */}
-      <div className="container mx-auto py-12 px-4 lg:px-20">
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <div className="flex items-center space-x-4 mb-6">
-            {/* Author Info */}
-            <img
-              src={blog.author.image}
-              alt={blog.author.name}
-              className="w-14 h-14 rounded-full object-cover shadow-md"
-            />
-            <div>
-              <p className="text-lg font-bold">{blog.author.name}</p>
-              <p className="text-gray-500 text-sm">{blog.author.email}</p>
+    <Container>
+      <Helmet>
+        <title>{title}</title>
+      </Helmet>
+      <div className="min-h-screen">
+        <div className="flex flex-col lg:flex-row justify-between w-full gap-12 py-8 items-stretch">
+          {/* Left Section: Image */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="w-full h-full overflow-hidden rounded-xl shadow-lg">
+              <img
+                className="object-cover w-full h-[300px] md:h-[500px] lg:h-full rounded-xl"
+                src={thumbnail}
+                alt="Blog header"
+              />
             </div>
           </div>
-          {/* Blog Content */}
-          <div className="prose max-w-none">
-            <p className="text-gray-800 leading-relaxed">{blog.content}</p>
+
+          {/* Right Section: Content */}
+          <div className="flex-1 flex flex-col bg-white p-8 rounded-xl shadow-lg">
+            <Heading title={title} subtitle={`Category: ${category}`} />
+            <hr className="my-6" />
+            <div className="text-lg font-light text-neutral-600 leading-relaxed">
+              {content}
+            </div>
+            <hr className="my-6" />
+
+            {/* Author Information */}
+            <div className="text-xl font-semibold flex flex-row items-center gap-4">
+              <span>Author: {name}</span>
+              {image && (
+                <img
+                  className="rounded-full"
+                  height="40"
+                  width="40"
+                  alt="Author Avatar"
+                  referrerPolicy="no-referrer"
+                  src={image}
+                />
+              )}
+            </div>
+            <hr className="my-6" />
+
+            {/* Read More Button */}
+            <Button
+              label="Read More Blogs"
+              onClick={() => (window.location.href = "/blogs")}
+              className="mt-auto"
+            />
+          </div>
+        </div>
+
+        {/* Quote Section */}
+        <div className="flex-1 flex items-center justify-center bg-red-50 p-6 rounded-lg shadow-md">
+          <div className="text-center text-red-600 max-w-md">
+            <FaQuoteLeft size={40} className="mx-auto mb-4" />
+            <p className="text-xl italic">{quote}</p>
+            <p className="text-right font-semibold mt-2">- {author}</p>
           </div>
         </div>
       </div>
-
-      {/* Footer Section */}
-      <footer className="bg-gray-800 text-white py-6">
-        <div className="container mx-auto text-center">
-          <p className="text-sm">
-            © {new Date().getFullYear()} My Blog Website. All rights reserved.
-          </p>
-          <p className="mt-2 text-gray-400">
-            Sharing insights, knowledge, and inspiration through blogs.
-          </p>
-        </div>
-      </footer>
-    </div>
+    </Container>
   );
 };
 
