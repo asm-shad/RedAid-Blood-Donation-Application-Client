@@ -83,9 +83,9 @@ const MyDonationRequests = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedRequests.map((request) => (
+            {paginatedRequests.map((request, idx) => (
               <tr
-                key={request.id}
+                key={idx}
                 className="border-b text-gray-700 hover:bg-gray-100 text-center"
               >
                 <td className="py-2 px-4">{request.recipientName}</td>

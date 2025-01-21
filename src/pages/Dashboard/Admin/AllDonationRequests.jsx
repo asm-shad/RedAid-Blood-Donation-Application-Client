@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaEdit, FaTrashAlt, FaEye } from "react-icons/fa";
 import districtsData from "../../../assets/json/districts.json"; // Import districts JSON
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
@@ -17,7 +17,7 @@ const AllDonationRequests = () => {
   const axiosSecure = useAxiosSecure();
   const [isOpen, setIsOpen] = useState(false);
   const [deletingRequestId, setDeletingRequestId] = useState(null); // Store the ID of the request to delete
-
+  const navigate = useNavigate();
   const closeModal = () => setIsOpen(false);
 
   // Load districts on component mount
@@ -78,6 +78,10 @@ const AllDonationRequests = () => {
 
       closeModal(); // Close modal if error occurs
     }
+  };
+
+  const handleView = (id) => {
+    navigate(`/donation-requests/${id}`);
   };
 
   // Get district name by ID
@@ -196,8 +200,9 @@ const AllDonationRequests = () => {
                     </button>
 
                     <Link
-                      to={`/dashboard/donor/donation-request-details/${request.id}`}
+                      // to={`/donation-request-details/${request.id}`}
                       className="text-blue-600 hover:underline flex items-center"
+                      onClick={() => handleView(request._id)}
                     >
                       <FaEye />
                     </Link>

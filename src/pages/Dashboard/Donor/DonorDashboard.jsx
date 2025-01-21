@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   FaEdit,
   FaTrashAlt,
@@ -10,12 +10,22 @@ import {
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
+import Swal from "sweetalert2";
+import DeleteModal from "../../Modal/DeleteModal";
 
 const DonorDashboard = () => {
   const { user } = useAuth(); // Access user from AuthContext
   const axiosSecure = useAxiosSecure();
+  const navigate = useNavigate();
 
-  const { data: recentRequests = [], isLoading: isLoadingRecent } = useQuery({
+  // Modal and deletion state
+  const [isOpen, setIsOpen] = useState(false);
+  const [deletingRequestId, setDeletingRequestId] = useState(null);
+
+  const closeModal = () => setIsOpen(false);
+
+  // Fetch recent donation requests
+  const { data: recentRequests = [], refetch } = useQuery({
     queryKey: ["donationRequestRecent", user?.email],
     queryFn: async () => {
       const { data } = await axiosSecure(
@@ -25,7 +35,49 @@ const DonorDashboard = () => {
     },
   });
 
-  console.log(recentRequests);
+  // Handle view action
+  const handleView = (id) => {
+    navigate(`/donation-requests/${id}`);
+  };
+
+  // Handle edit action
+  const handleEdit = (id) => {
+    navigate(`/dashboard/donor/edit-donation-request/${id}`);
+  };
+
+  // Handle delete action
+  const handleDelete = (id) => {
+    setDeletingRequestId(id);
+    setIsOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingRequestId) return;
+    try {
+      await axiosSecure.delete(`/donation-requests/${deletingRequestId}`);
+      refetch(); // Refresh the data
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "The donation request has been deleted.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      closeModal();
+      setDeletingRequestId(null);
+    } catch (error) {
+      console.error("Error deleting donation request:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Failed to delete the donation request.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+      closeModal();
+    }
+  };
+
   return (
     <div className="p-4">
       {/* Welcome Section with Motivational Quote */}
@@ -83,7 +135,7 @@ const DonorDashboard = () => {
                     </td>
                     <td className="border border-gray-300 p-2">
                       {request.status}
-                      {/* In-progress donation status shows action icons below */}
+                      {/* In-progress donation status shows action icons */}
                       {request.donationStatus === "inprogress" && (
                         <div className="flex space-x-2 mb-2">
                           <button className="text-green-600 p-2 rounded-full">
@@ -95,24 +147,29 @@ const DonorDashboard = () => {
                         </div>
                       )}
                     </td>
-                    <td className="border border-gray-300 p-2 space-x-2">
-                      {/* Edit, Delete, and View Icons always present */}
+                    <td className="border border-gray-300 p-2">
                       <div className="flex space-x-2">
-                        <Link
-                          to={`/dashboard/donor/edit-donation-request/${request.id}`}
+                        {/* Edit Button */}
+                        <button
                           className="text-blue-600 hover:underline flex items-center"
+                          onClick={() => handleEdit(request._id)}
                         >
                           <FaEdit />
-                        </Link>
-                        <button className="text-red-600 hover:underline flex items-center">
+                        </button>
+                        {/* Delete Button */}
+                        <button
+                          className="text-red-600 hover:underline flex items-center"
+                          onClick={() => handleDelete(request._id)}
+                        >
                           <FaTrashAlt />
                         </button>
-                        <Link
-                          to={`/dashboard/donor/donation-request-details/${request.id}`}
+                        {/* View Button */}
+                        <button
                           className="text-blue-600 hover:underline flex items-center"
+                          onClick={() => handleView(request._id)}
                         >
                           <FaEye />
-                        </Link>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -139,6 +196,13 @@ const DonorDashboard = () => {
       {recentRequests.length === 0 && (
         <p className="text-gray-600">You have no donation requests yet.</p>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        isOpen={isOpen}
+        closeModal={closeModal}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };
