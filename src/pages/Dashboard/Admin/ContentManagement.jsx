@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FiEdit, FiTrash, FiPlus } from "react-icons/fi";
 
@@ -173,19 +173,15 @@ const ContentManagement = () => {
                 {blog.status === "draft" ? "Publish" : "Unpublish"}
               </button>
               <div className="flex items-center gap-2">
-                <button
+                <Link
+                  to={`/dashboard/admin/content-management/edit-blog/${blog._id}`}
                   className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
-                  onClick={() =>
-                    navigate(
-                      `/dashboard/content-management/edit-blog/${blog.id}`
-                    )
-                  }
                 >
                   <FiEdit />
-                </button>
+                </Link>
                 <button
                   className="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600"
-                  onClick={() => handleDelete(blog.id)}
+                  onClick={() => handleDelete(blog._id)}
                 >
                   <FiTrash />
                 </button>
