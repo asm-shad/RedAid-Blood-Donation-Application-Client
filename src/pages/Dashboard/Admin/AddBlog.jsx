@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Swal from "sweetalert2";
 import useAuth from "../../../hooks/useAuth";
@@ -7,6 +7,7 @@ import { FiUpload } from "react-icons/fi";
 import { imageUpload } from "../../../api/utils"; // Ensure this function exists and works
 import { TbFidgetSpinner } from "react-icons/tb";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
+import JoditEditor from "jodit-react";
 
 const AddBlog = () => {
   const { user } = useAuth();
@@ -15,6 +16,15 @@ const AddBlog = () => {
   const [previewImage, setPreviewImage] = useState(null); // For image preview
   const [loading, setLoading] = useState(false);
   const [blogContent, setBlogContent] = useState("");
+
+  const editor = useRef(null);
+
+  const config = {
+    readonly: false, // Allow editing
+    toolbar: true, // Show the toolbar
+    height: 400, // Set editor height
+    placeholder: "Write your blog content here...",
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -157,16 +167,13 @@ const AddBlog = () => {
             >
               Blog Content
             </label>
-            <textarea
-              id="blogContent"
-              name="blogContent"
+            <JoditEditor
+              ref={editor}
               value={blogContent}
-              onChange={(e) => setBlogContent(e.target.value)}
-              required
-              className="w-full mt-2 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-red-500"
-              placeholder="Write your blog content here..."
-              rows={10}
-            ></textarea>
+              config={config}
+              onBlur={(newContent) => setBlogContent(newContent)} // Update state on blur
+              onChange={(newContent) => setBlogContent(newContent)} // Update state on change
+            />
           </div>
 
           {/* Category */}
