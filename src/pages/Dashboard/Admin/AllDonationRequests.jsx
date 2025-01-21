@@ -156,7 +156,7 @@ const AllDonationRequests = () => {
                   {/* Edit, Delete, and View Icons */}
                   <div className="flex space-x-2">
                     <Link
-                      to={`/dashboard/donor/edit-donation-request/${request.id}`}
+                      to={`/dashboard/donor/edit-donation-request/${request._id}`}
                       className="text-blue-600 hover:underline flex items-center"
                     >
                       <FaEdit />
