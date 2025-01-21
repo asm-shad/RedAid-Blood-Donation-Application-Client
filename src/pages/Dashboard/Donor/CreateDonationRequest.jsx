@@ -8,6 +8,8 @@ import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 import { TbFidgetSpinner } from "react-icons/tb";
 import { Helmet } from "react-helmet-async";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 const CreateDonationRequest = () => {
   const [districts, setDistricts] = useState([]);
@@ -17,6 +19,17 @@ const CreateDonationRequest = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
+
+  const { data: userData, isLoading } = useQuery({
+    queryKey: ["userData"],
+    queryFn: async () => {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/users/${user.email}`
+      );
+      return data;
+    },
+  });
+  console.log("User Inf from create donation", userData);
 
   console.log(user);
 
@@ -52,6 +65,8 @@ const CreateDonationRequest = () => {
     const newRequest = {
       requesterName: user.displayName,
       requesterEmail: user.email,
+      requesterRole: userData.role,
+      requesterStatus: userData.status,
       recipientName: form.recipientName.value,
       recipientDistrict: form.recipientDistrict.value,
       recipientUpazila: form.recipientUpazila.value,
@@ -75,7 +90,7 @@ const CreateDonationRequest = () => {
       setLoading(false);
     }
   };
-
+  if (isLoading) return <LoadingSpinner />;
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">

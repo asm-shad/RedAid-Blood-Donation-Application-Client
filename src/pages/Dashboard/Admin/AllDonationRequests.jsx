@@ -1,28 +1,37 @@
+import { useQuery } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
+import axios from "axios";
+import { Link } from "react-router-dom";
+import { FaEdit, FaTrashAlt, FaEye } from "react-icons/fa";
+import districtsData from "../../../assets/json/districts.json"; // Import districts JSON
 
 const AllDonationRequests = () => {
-  const [donationRequests, setDonationRequests] = useState([]);
   const [filter, setFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [districts, setDistricts] = useState([]);
 
-  // Fetch all donation requests (replace with actual API call)
+  // Load districts on component mount
   useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await fetch("/api/all-donation-requests");
-        const data = await response.json();
-        setDonationRequests(data);
-      } catch (err) {
-        console.error("Error fetching donation requests:", err);
-      }
-    };
-
-    fetchRequests();
+    setDistricts(districtsData);
   }, []);
 
-  // Handle status updates (e.g., Mark as Done, Cancel)
+  // Fetch all donation requests
+  const { data: donationRequests, isLoading } = useQuery({
+    queryKey: ["redLifeAid"],
+    queryFn: async () => {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/donation-requests`
+      );
+      return data;
+    },
+  });
+
+  if (isLoading) return <LoadingSpinner />;
+
+  // Handle status updates
   const handleStatusChange = async (id, status) => {
     try {
       const response = await fetch(`/api/donation-requests/${id}`, {
@@ -37,16 +46,18 @@ const AllDonationRequests = () => {
         throw new Error("Failed to update donation request.");
       }
 
-      const updatedRequests = donationRequests.map((request) =>
-        request.id === id ? { ...request, status } : request
-      );
-      setDonationRequests(updatedRequests);
-
       Swal.fire("Success", `Request marked as ${status}!`, "success");
     } catch (err) {
       console.error("Error updating donation request:", err);
       Swal.fire("Error", "Failed to update donation request.", "error");
     }
+  };
+
+  // Get district name by ID
+  const getDistrictName = (districtId) => {
+    if (!districtId) return "Unknown District";
+    const district = districts.find((d) => d.id === districtId.toString());
+    return district ? district.name : "Unknown District";
   };
 
   // Filtered Requests
@@ -56,7 +67,7 @@ const AllDonationRequests = () => {
       : donationRequests.filter((request) => request.status === filter);
 
   // Pagination Logic
-  const totalItems = filteredRequests.length;
+  const totalItems = filteredRequests?.length || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const paginatedRequests = filteredRequests.slice(
     (currentPage - 1) * itemsPerPage,
@@ -114,15 +125,16 @@ const AllDonationRequests = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedRequests.map((request) => (
+            {paginatedRequests.map((request, idx) => (
               <tr
-                key={request.id}
+                key={idx}
                 className="border-b text-gray-700 hover:bg-gray-100"
               >
                 <td className="py-2 px-4">{request.requesterName}</td>
                 <td className="py-2 px-4">{request.recipientName}</td>
                 <td className="py-2 px-4">
-                  {request.recipientDistrict}, {request.recipientUpazila}
+                  {getDistrictName(request.recipientDistrict)},{" "}
+                  {request.recipientUpazila}
                 </td>
                 <td className="py-2 px-4">{request.donationDate}</td>
                 <td className="py-2 px-4">{request.donationTime}</td>
@@ -140,25 +152,28 @@ const AllDonationRequests = () => {
                 >
                   {request.status}
                 </td>
-                <td className="py-2 px-4">
-                  {request.status === "inprogress" && (
-                    <>
-                      <button
-                        className="mr-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                        onClick={() => handleStatusChange(request.id, "done")}
-                      >
-                        Mark as Done
-                      </button>
-                      <button
-                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                        onClick={() =>
-                          handleStatusChange(request.id, "canceled")
-                        }
-                      >
-                        Cancel
-                      </button>
-                    </>
-                  )}
+                <td className="border border-gray-300 p-2 space-x-2">
+                  {/* Edit, Delete, and View Icons */}
+                  <div className="flex space-x-2">
+                    <Link
+                      to={`/dashboard/donor/edit-donation-request/${request.id}`}
+                      className="text-blue-600 hover:underline flex items-center"
+                    >
+                      <FaEdit />
+                    </Link>
+                    <button
+                      className="text-red-600 hover:underline flex items-center"
+                      onClick={() => Swal.fire("Delete action coming soon!")}
+                    >
+                      <FaTrashAlt />
+                    </button>
+                    <Link
+                      to={`/dashboard/donor/donation-request-details/${request.id}`}
+                      className="text-blue-600 hover:underline flex items-center"
+                    >
+                      <FaEye />
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

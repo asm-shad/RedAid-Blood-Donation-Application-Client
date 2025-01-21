@@ -54,6 +54,7 @@ const AddBlog = () => {
         content: blogContent,
         category,
         thumbnail: thumbnailUrl,
+        status: "draft",
         author: {
           name: user?.displayName,
           image: user?.photoURL,

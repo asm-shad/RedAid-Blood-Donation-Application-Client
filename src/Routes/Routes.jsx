@@ -25,7 +25,7 @@ import EditBlog from "../pages/Dashboard/Admin/EditBlog";
 import DonorDashboard from "../pages/Dashboard/Donor/DonorDashboard";
 import MyDonationRequests from "../pages/Dashboard/Donor/MyDonationRequests";
 import CreateDonationRequest from "../pages/Dashboard/Donor/CreateDonationRequest";
-import EditDonationRequest from "../pages/Dashboard/Donor/EditDonationRequest";
+import EditDonationRequest from "../pages/Dashboard/Common/EditDonationRequest";
 
 // Volunteer Pages
 import VolunteerDashboard from "../pages/Dashboard/Volunteer/VolunteerDashboard";

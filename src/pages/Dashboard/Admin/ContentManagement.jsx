@@ -12,7 +12,7 @@ const ContentManagement = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const response = await fetch("/blogs");
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/blogs`);
         const data = await response.json();
         setBlogs(data);
       } catch (err) {
@@ -26,13 +26,16 @@ const ContentManagement = () => {
   // Handle publishing/unpublishing a blog
   const handlePublishToggle = async (id, newStatus) => {
     try {
-      const response = await fetch(`/api/blogs/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/blogs/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: newStatus }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to update blog status.");
@@ -59,9 +62,12 @@ const ContentManagement = () => {
   // Handle deleting a blog
   const handleDelete = async (id) => {
     try {
-      const response = await fetch(`/api/blogs/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/blogs/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to delete blog.");
@@ -118,21 +124,21 @@ const ContentManagement = () => {
 
       {/* Blogs List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredBlogs.map((blog) => (
+        {filteredBlogs.map((blog, idx) => (
           <div
-            key={blog.id}
+            key={idx}
             className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between"
           >
             {/* Blog Thumbnail */}
             <div>
               <img
-                src={blog.thumbnail}
+                src={blog.thumbnail || "https://via.placeholder.com/150"}
                 alt={blog.title}
                 className="rounded-lg mb-4 object-cover h-40 w-full"
               />
               {/* Blog Title */}
               <h3 className="text-xl font-bold text-gray-800 mb-2">
-                {blog.title}
+                {blog.title || "Untitled Blog"}
               </h3>
               {/* Blog Status */}
               <p className="text-sm font-medium text-gray-600">
