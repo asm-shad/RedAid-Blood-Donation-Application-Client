@@ -79,7 +79,7 @@ const DonorDashboard = () => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-10">
       {/* Welcome Section with Motivational Quote */}
       <div className="bg-blue-100 p-6 rounded-lg shadow-md mb-6">
         <h1 className="text-3xl font-semibold text-blue-800 mb-2">

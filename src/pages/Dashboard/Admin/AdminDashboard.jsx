@@ -6,7 +6,7 @@ const AdminDashboard = () => {
   const { user } = useAuth(); // Get the authenticated user's details
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
+    <div className="p-10 bg-gray-100 min-h-screen">
       {/* Welcome Section */}
       <div className="bg-white shadow-md rounded-md p-6 mb-6">
         <h1 className="text-2xl font-bold text-gray-800">

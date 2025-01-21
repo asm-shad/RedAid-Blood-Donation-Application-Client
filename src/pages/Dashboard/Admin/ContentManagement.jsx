@@ -2,28 +2,78 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { FiEdit, FiTrash, FiPlus } from "react-icons/fi";
+import DeleteModal from "../../Modal/DeleteModal";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 
 const ContentManagement = () => {
-  const [blogs, setBlogs] = useState([]); // Store blogs data
-  const [filter, setFilter] = useState("all"); // Blog status filter
+  // const [blogs, setBlogs] = useState([]);
+  const [filter, setFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  const [isOpen, setIsOpen] = useState(false);
+  const [deletingBlogId, setDeletingBlogId] = useState(null);
   const navigate = useNavigate();
+  const axiosSecure = useAxiosSecure();
 
-  // Fetch blogs data (replace with actual API call)
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/blogs`);
-        const data = await response.json();
-        setBlogs(data);
-      } catch (err) {
-        console.error("Error fetching blogs:", err);
-      }
-    };
+  const closeModal = () => setIsOpen(false);
 
-    fetchBlogs();
-  }, []);
+  const {
+    data: blogs,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["redLifeAid"],
+    queryFn: async () => {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/blogs`);
+      return data;
+    },
+  });
 
-  // Handle publishing/unpublishing a blog
+  if (isLoading) return <LoadingSpinner />;
+
+  const handleDelete = (id) => {
+    setDeletingBlogId(id);
+    setIsOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingBlogId) return;
+
+    try {
+      // Use axiosSecure for DELETE request
+      await axiosSecure.delete(`/blogs/${deletingBlogId}`);
+      refetch(); // Refetch data after deletion
+
+      // Show success toast
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "The donation request has been deleted.",
+        timer: 2000, // Toast will disappear after 2 seconds
+        showConfirmButton: false,
+      });
+
+      closeModal(); // Close modal after deletion
+      setDeletingBlogId(null); // Clear the request ID
+    } catch (error) {
+      console.error("Error deleting donation request:", error);
+
+      // Show error toast
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Failed to delete the donation request.",
+        timer: 2000, // Toast will disappear after 2 seconds
+        showConfirmButton: false,
+      });
+
+      closeModal(); // Close modal if error occurs
+    }
+  };
+
   const handlePublishToggle = async (id, newStatus) => {
     try {
       const response = await fetch(
@@ -42,7 +92,7 @@ const ContentManagement = () => {
       }
 
       const updatedBlogs = blogs.map((blog) =>
-        blog.id === id ? { ...blog, status: newStatus } : blog
+        blog._id === id ? { ...blog, status: newStatus } : blog
       );
       setBlogs(updatedBlogs);
 
@@ -59,37 +109,22 @@ const ContentManagement = () => {
     }
   };
 
-  // Handle deleting a blog
-  const handleDelete = async (id) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/blogs/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete blog.");
-      }
-
-      const updatedBlogs = blogs.filter((blog) => blog.id !== id);
-      setBlogs(updatedBlogs);
-
-      Swal.fire("Success", "Blog deleted successfully!", "success");
-    } catch (err) {
-      console.error("Error deleting blog:", err);
-      Swal.fire("Error", "Failed to delete blog.", "error");
-    }
-  };
-
-  // Filtered blogs based on status
   const filteredBlogs =
     filter === "all" ? blogs : blogs.filter((blog) => blog.status === filter);
 
+  const totalItems = filteredBlogs.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginatedBlogs = filteredBlogs.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="p-6 bg-gradient-to-r from-[#F4F5F7] to-[#E6E8EB] min-h-screen">
-      {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-extrabold text-gray-800">
           Content Management
@@ -105,7 +140,6 @@ const ContentManagement = () => {
         </button>
       </div>
 
-      {/* Filter Section */}
       <div className="mb-6">
         <label htmlFor="filter" className="text-lg font-semibold text-gray-700">
           Filter by Status:
@@ -122,25 +156,21 @@ const ContentManagement = () => {
         </select>
       </div>
 
-      {/* Blogs List */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredBlogs.map((blog, idx) => (
+        {paginatedBlogs.map((blog, idx) => (
           <div
             key={idx}
             className="bg-white shadow-lg rounded-lg p-6 flex flex-col justify-between"
           >
-            {/* Blog Thumbnail */}
             <div>
               <img
                 src={blog.thumbnail || "https://via.placeholder.com/150"}
                 alt={blog.title}
                 className="rounded-lg mb-4 object-cover h-40 w-full"
               />
-              {/* Blog Title */}
               <h3 className="text-xl font-bold text-gray-800 mb-2">
                 {blog.title || "Untitled Blog"}
               </h3>
-              {/* Blog Status */}
               <p className="text-sm font-medium text-gray-600">
                 Status:{" "}
                 <span
@@ -155,41 +185,67 @@ const ContentManagement = () => {
               </p>
             </div>
 
-            {/* Actions */}
-            <div className="mt-4 flex justify-between items-center">
+            <div className="mt-4 flex flex-col justify-between items-center gap-4">
+              {/* Publish/Unpublish Button */}
               <button
-                className={`flex-1 px-4 py-2 text-white font-medium rounded-lg shadow-md ${
+                className={`w-full px-4 py-2 text-white font-medium rounded-lg shadow-md ${
                   blog.status === "draft"
                     ? "bg-green-500 hover:bg-green-600"
                     : "bg-yellow-500 hover:bg-yellow-600"
                 }`}
                 onClick={() =>
                   handlePublishToggle(
-                    blog.id,
+                    blog._id,
                     blog.status === "draft" ? "published" : "draft"
                   )
                 }
               >
                 {blog.status === "draft" ? "Publish" : "Unpublish"}
               </button>
-              <div className="flex items-center gap-2">
+
+              {/* Edit and Delete Buttons */}
+              <div className="flex justify-between items-center gap-4 w-full">
                 <Link
                   to={`/dashboard/admin/content-management/edit-blog/${blog._id}`}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
+                  className="w-1/2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 flex justify-center items-center gap-2"
                 >
                   <FiEdit />
+                  <span>Edit</span>
                 </Link>
                 <button
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600"
+                  className="w-1/2 px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 flex justify-center items-center gap-2"
                   onClick={() => handleDelete(blog._id)}
                 >
                   <FiTrash />
+                  <span>Delete</span>
                 </button>
               </div>
             </div>
           </div>
         ))}
       </div>
+
+      <div className="flex justify-center mt-6">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index}
+            className={`mx-1 px-4 py-2 rounded-md ${
+              currentPage === index + 1
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700"
+            }`}
+            onClick={() => handlePageChange(index + 1)}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
+
+      <DeleteModal
+        isOpen={isOpen}
+        closeModal={closeModal}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };
