@@ -6,12 +6,19 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { FaEdit, FaTrashAlt, FaEye } from "react-icons/fa";
 import districtsData from "../../../assets/json/districts.json"; // Import districts JSON
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import DeleteModal from "../../Modal/DeleteModal";
 
 const AllDonationRequests = () => {
   const [filter, setFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const [districts, setDistricts] = useState([]);
+  const axiosSecure = useAxiosSecure();
+  const [isOpen, setIsOpen] = useState(false);
+  const [deletingRequestId, setDeletingRequestId] = useState(null); // Store the ID of the request to delete
+
+  const closeModal = () => setIsOpen(false);
 
   // Load districts on component mount
   useEffect(() => {
@@ -19,7 +26,11 @@ const AllDonationRequests = () => {
   }, []);
 
   // Fetch all donation requests
-  const { data: donationRequests, isLoading } = useQuery({
+  const {
+    data: donationRequests,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["redLifeAid"],
     queryFn: async () => {
       const { data } = await axios.get(
@@ -31,25 +42,41 @@ const AllDonationRequests = () => {
 
   if (isLoading) return <LoadingSpinner />;
 
-  // Handle status updates
-  const handleStatusChange = async (id, status) => {
+  const handleDelete = (id) => {
+    setDeletingRequestId(id); // Set the request ID to delete
+    setIsOpen(true); // Open the modal
+  };
+
+  const confirmDelete = async () => {
+    if (!deletingRequestId) return;
     try {
-      const response = await fetch(`/api/donation-requests/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status }),
+      await axiosSecure.delete(`/donation-requests/${deletingRequestId}`);
+      refetch(); // Refetch data after deletion
+
+      // Show success toast
+      Swal.fire({
+        icon: "success",
+        title: "Deleted!",
+        text: "The donation request has been deleted.",
+        timer: 2000, // Toast will disappear after 2 seconds
+        showConfirmButton: false,
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to update donation request.");
-      }
+      closeModal(); // Close modal after deletion
+      setDeletingRequestId(null); // Clear the request ID
+    } catch (error) {
+      console.error("Error deleting donation request:", error);
 
-      Swal.fire("Success", `Request marked as ${status}!`, "success");
-    } catch (err) {
-      console.error("Error updating donation request:", err);
-      Swal.fire("Error", "Failed to update donation request.", "error");
+      // Show error toast
+      Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "Failed to delete the donation request.",
+        timer: 2000, // Toast will disappear after 2 seconds
+        showConfirmButton: false,
+      });
+
+      closeModal(); // Close modal if error occurs
     }
   };
 
@@ -163,10 +190,11 @@ const AllDonationRequests = () => {
                     </Link>
                     <button
                       className="text-red-600 hover:underline flex items-center"
-                      onClick={() => Swal.fire("Delete action coming soon!")}
+                      onClick={() => handleDelete(request._id)}
                     >
                       <FaTrashAlt />
                     </button>
+
                     <Link
                       to={`/dashboard/donor/donation-request-details/${request.id}`}
                       className="text-blue-600 hover:underline flex items-center"
@@ -197,6 +225,13 @@ const AllDonationRequests = () => {
           </button>
         ))}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <DeleteModal
+        isOpen={isOpen}
+        closeModal={closeModal}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };
