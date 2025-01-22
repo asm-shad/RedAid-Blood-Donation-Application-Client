@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import useRole from "../hooks/useRole";
-import LoadingSpinner from "../components/Shared/LoadingSpinner";
+import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner";
 import { Navigate } from "react-router-dom";
 
 const VolunteerRoute = ({ children }) => {

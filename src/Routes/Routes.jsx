@@ -38,6 +38,7 @@ import Profile from "../pages/Dashboard/Common/Profile";
 // import AllDonationRequestDetails from "../pages/Dashboard/Admin/AllDonationRequestDetails";
 import DonationRequestDetails from "../pages/DonationRequests/DonationRequestDetails";
 import AdminRoute from "./AdminRoute";
+import VolunteerRoute from "./VolunteerRoute";
 
 export const router = createBrowserRouter([
   // Public Routes
@@ -79,7 +80,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "/funding-links",
-        element: <FundingPage />,
+        element: (
+          <PrivateRoute>
+            <FundingPage />
+          </PrivateRoute>
+        ),
       },
       {
         path: "*", // Fallback for undefined routes
@@ -91,7 +96,11 @@ export const router = createBrowserRouter([
   // Dashboard Routes (Private)
   {
     path: "/dashboard",
-    element: <DashboardLayout />,
+    element: (
+      <PrivateRoute>
+        <DashboardLayout />
+      </PrivateRoute>
+    ),
     children: [
       {
         index: true, // This acts as the default page when accessing /dashboard
@@ -99,7 +108,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "profile",
-        element: <Profile />,
+        element: (
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        ),
       },
       // Admin Routes
       {
@@ -108,64 +121,102 @@ export const router = createBrowserRouter([
       },
       {
         path: "all-users",
-        element: <AllUsers />,
+        element: (
+          <PrivateRoute>
+            <AdminRoute>
+              <AllUsers />
+            </AdminRoute>
+          </PrivateRoute>
+        ),
       },
       {
         path: "all-donation-requests",
         element: (
-          <AdminRoute>
-            <AllDonationRequests />
-          </AdminRoute>
+          <PrivateRoute>
+            <AdminRoute>
+              <AllDonationRequests />
+            </AdminRoute>
+          </PrivateRoute>
         ),
       },
-      // {
-      //   path: "admin/all-donation-requests/:id",
-      //   element: <AllDonationRequestDetails />,
-      // },
       {
         path: "content-management",
-        element: <ContentManagement />,
+        element: (
+          <PrivateRoute>
+            <ContentManagement />
+          </PrivateRoute>
+        ),
       },
       {
         path: "content-management/add-blog",
-        element: <AddBlog />,
+        element: (
+          <PrivateRoute>
+            <AddBlog />
+          </PrivateRoute>
+        ),
       },
       {
         path: "content-management/edit-blog/:id",
-        element: <EditBlog />,
+        element: (
+          <PrivateRoute>
+            <EditBlog />
+          </PrivateRoute>
+        ),
       },
 
       // Donor Routes
       {
         path: "donor",
-        element: <DonorDashboard />,
+        element: (
+          <PrivateRoute>
+            <DonorDashboard />
+          </PrivateRoute>
+        ),
       },
       {
         path: "donor/my-donation-requests",
-        element: <MyDonationRequests />,
+        element: (
+          <PrivateRoute>
+            <MyDonationRequests />
+          </PrivateRoute>
+        ),
       },
       {
         path: "donor/create-donation-request",
-        element: <CreateDonationRequest />,
+        element: (
+          <PrivateRoute>
+            <CreateDonationRequest />
+          </PrivateRoute>
+        ),
       },
       {
         path: "donor/edit-donation-request/:id",
-        element: <EditDonationRequest />,
+        element: (
+          <PrivateRoute>
+            <EditDonationRequest />
+          </PrivateRoute>
+        ),
       },
 
       // Volunteer Routes
       {
         path: "volunteer",
-        element: <VolunteerDashboard />,
+        element: (
+          <PrivateRoute>
+            <VolunteerRoute>
+              <VolunteerDashboard />
+            </VolunteerRoute>
+          </PrivateRoute>
+        ),
       },
       {
         path: "volunteer/all-donation-requests",
-        element: <VolunteerDonationRequests />,
+        element: (
+          <PrivateRoute>
+            <VolunteerDonationRequests />
+          </PrivateRoute>
+        ),
       },
-      // {
-      //   path: "volunteer/all-donation-requests/:id",
-      //   element: <DonationRequestDetails />,
-      // },
       {
         path: "profile/edit",
         element: <EditProfile />,

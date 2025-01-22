@@ -1,72 +1,78 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { FiMoreVertical } from "react-icons/fi";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
+import useAuth from "../../../hooks/useAuth";
 
 const AllUsers = () => {
-  const [users, setUsers] = useState([]); // Store user data
+  // const [users, setUsers] = useState([]); // Store user data
   const [filter, setFilter] = useState("all"); // Status filter
   const [currentPage, setCurrentPage] = useState(1); // Pagination
   const itemsPerPage = 5; // Rows per page
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
 
-  // Fetch users data (replace with actual API call later)
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("/api/users");
-        const data = await response.json();
-        setUsers(data);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-      }
-    };
+  const {
+    data: users = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["users", user?.email],
+    queryFn: async () => {
+      const { data } = await axiosSecure(`/all-users/${user?.email}`);
+      return data;
+    },
+  });
+  console.log(users);
 
-    fetchUsers();
-  }, []);
+  if (isLoading) return <LoadingSpinner />;
 
   // Handle user actions (Block, Unblock, Change Role)
-  const handleAction = async (userId, action) => {
-    try {
-      // API request to update user status or role
-      const response = await fetch(`/api/users/${userId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ action }),
-      });
+  // const handleAction = async (userId, action) => {
+  //   try {
+  //     // API request to update user status or role
+  //     const response = await fetch(`/api/users/${userId}`, {
+  //       method: "PATCH",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ action }),
+  //     });
 
-      if (!response.ok) {
-        throw new Error("Failed to update user.");
-      }
+  //     if (!response.ok) {
+  //       throw new Error("Failed to update user.");
+  //     }
 
-      // Update local state to reflect changes
-      const updatedUsers = users.map((user) =>
-        user.id === userId
-          ? {
-              ...user,
-              status:
-                action === "block"
-                  ? "blocked"
-                  : action === "unblock"
-                  ? "active"
-                  : user.status,
-              role:
-                action === "make_volunteer"
-                  ? "volunteer"
-                  : action === "make_admin"
-                  ? "admin"
-                  : user.role,
-            }
-          : user
-      );
-      setUsers(updatedUsers);
+  //     // Update local state to reflect changes
+  //     const updatedUsers = users.map((user) =>
+  //       user.id === userId
+  //         ? {
+  //             ...user,
+  //             status:
+  //               action === "block"
+  //                 ? "blocked"
+  //                 : action === "unblock"
+  //                 ? "active"
+  //                 : user.status,
+  //             role:
+  //               action === "make_volunteer"
+  //                 ? "volunteer"
+  //                 : action === "make_admin"
+  //                 ? "admin"
+  //                 : user.role,
+  //           }
+  //         : user
+  //     );
+  //     setUsers(updatedUsers);
 
-      Swal.fire("Success", "User updated successfully!", "success");
-    } catch (err) {
-      console.error("Error updating user:", err);
-      Swal.fire("Error", "Failed to update user.", "error");
-    }
-  };
+  //     Swal.fire("Success", "User updated successfully!", "success");
+  //   } catch (err) {
+  //     console.error("Error updating user:", err);
+  //     Swal.fire("Error", "Failed to update user.", "error");
+  //   }
+  // };
 
   // Filtered users based on status
   const filteredUsers =
@@ -127,11 +133,11 @@ const AllUsers = () => {
             {paginatedUsers.map((user) => (
               <tr
                 key={user.id}
-                className="border-b text-gray-700 hover:bg-gray-100"
+                className="border-b text-gray-700 hover:bg-gray-100 text-center"
               >
-                <td className="py-2 px-4">
+                <td className="py-2 px-4 flex items-center justify-center">
                   <img
-                    src={user.avatar}
+                    src={user.image}
                     alt={user.name}
                     className="w-10 h-10 rounded-full"
                   />
