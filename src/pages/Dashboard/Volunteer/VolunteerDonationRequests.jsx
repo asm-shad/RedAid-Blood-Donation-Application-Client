@@ -1,52 +1,62 @@
+import { useQuery } from "@tanstack/react-query";
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
+import axios from "axios";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import districtsData from "../../../assets/json/districts.json"; // Import districts JSON
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import { toast } from "react-toastify";
 
-const AllDonationRequests = () => {
-  const [donationRequests, setDonationRequests] = useState([]);
+const VolunteerDonationRequests = () => {
   const [filter, setFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [districts, setDistricts] = useState([]);
+  const axiosSecure = useAxiosSecure();
 
-  // Fetch all donation requests (replace with actual API call)
+  // Load districts on component mount
   useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await fetch("/api/all-donation-requests");
-        const data = await response.json();
-        setDonationRequests(data);
-      } catch (err) {
-        console.error("Error fetching donation requests:", err);
-      }
-    };
-
-    fetchRequests();
+    setDistricts(districtsData);
   }, []);
 
-  // Handle status updates (e.g., Mark as Done, Cancel)
-  const handleStatusChange = async (id, status) => {
-    try {
-      const response = await fetch(`/api/donation-requests/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update donation request.");
-      }
-
-      const updatedRequests = donationRequests.map((request) =>
-        request.id === id ? { ...request, status } : request
+  // Fetch all donation requests
+  const {
+    data: donationRequests,
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["volunteerDonationRequests"],
+    queryFn: async () => {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/donation-requests`
       );
-      setDonationRequests(updatedRequests);
+      return data;
+    },
+  });
 
-      Swal.fire("Success", `Request marked as ${status}!`, "success");
-    } catch (err) {
-      console.error("Error updating donation request:", err);
-      Swal.fire("Error", "Failed to update donation request.", "error");
+  // Handle status update
+  const handleStatus = async (requestId) => {
+    try {
+      await axiosSecure.patch(`/donation-requests/status/${requestId}`);
+      refetch();
+      toast.success("Successfully updated request status!");
+    } catch (error) {
+      console.error(
+        "Error updating status:",
+        error.response?.data || error.message
+      );
+      toast.error("Failed to update request status.");
     }
+  };
+
+  if (isLoading) return <LoadingSpinner />;
+
+  // Get district name by ID
+  const getDistrictName = (districtId) => {
+    if (!districtId) return "Unknown District";
+    const district = districts.find((d) => d.id === districtId.toString());
+    return district ? district.name : "Unknown District";
   };
 
   // Filtered Requests
@@ -56,7 +66,7 @@ const AllDonationRequests = () => {
       : donationRequests.filter((request) => request.status === filter);
 
   // Pagination Logic
-  const totalItems = filteredRequests.length;
+  const totalItems = filteredRequests?.length || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const paginatedRequests = filteredRequests.slice(
     (currentPage - 1) * itemsPerPage,
@@ -71,12 +81,10 @@ const AllDonationRequests = () => {
     <div className="p-6 bg-gray-100 min-h-screen">
       {/* Page Title */}
       <h1 className="text-3xl font-bold text-gray-800 mb-4">
-        All Blood Donation Requests
+        Volunteer Blood Donation Requests
       </h1>
       <p className="text-gray-600 italic mb-6">
-        "The purpose of life is not to be happy. It is to be useful, to be
-        honorable, to be compassionate, to have it make some difference that you
-        have lived and lived well." – Ralph Waldo Emerson
+        Manage blood donation requests responsibly and make a difference!
       </p>
 
       {/* Filter Section */}
@@ -110,19 +118,20 @@ const AllDonationRequests = () => {
               <th className="py-2 px-4">Time</th>
               <th className="py-2 px-4">Blood Group</th>
               <th className="py-2 px-4">Status</th>
-              <th className="py-2 px-4">Actions</th>
+              <th className="py-2 px-4">Update Status</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedRequests.map((request) => (
+            {paginatedRequests.map((request, idx) => (
               <tr
-                key={request.id}
+                key={idx}
                 className="border-b text-gray-700 hover:bg-gray-100"
               >
                 <td className="py-2 px-4">{request.requesterName}</td>
                 <td className="py-2 px-4">{request.recipientName}</td>
                 <td className="py-2 px-4">
-                  {request.recipientDistrict}, {request.recipientUpazila}
+                  {getDistrictName(request.recipientDistrict)},{" "}
+                  {request.recipientUpazila}
                 </td>
                 <td className="py-2 px-4">{request.donationDate}</td>
                 <td className="py-2 px-4">{request.donationTime}</td>
@@ -140,25 +149,31 @@ const AllDonationRequests = () => {
                 >
                   {request.status}
                 </td>
-                <td className="py-2 px-4">
-                  {request.status === "inprogress" && (
-                    <>
+                <td className="border border-gray-300 py-2 px-4 space-x-2">
+                  <div className="flex justify-center items-center">
+                    {request.status === "pending" && (
                       <button
-                        className="mr-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
-                        onClick={() => handleStatusChange(request.id, "done")}
+                        onClick={() => handleStatus(request._id)}
+                        className="text-red-500 hover:text-red-700"
                       >
-                        Mark as Done
+                        <FaTimesCircle size={20} />
                       </button>
+                    )}
+                    {request.status === "inprogress" && (
                       <button
-                        className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                        onClick={() =>
-                          handleStatusChange(request.id, "canceled")
-                        }
+                        onClick={() => handleStatus(request._id)}
+                        className="text-green-500 hover:text-green-700"
                       >
-                        Cancel
+                        <FaCheckCircle size={20} />
                       </button>
-                    </>
-                  )}
+                    )}
+                    {request.status === "done" && (
+                      <span className="text-green-500">Completed</span>
+                    )}
+                    {request.status === "canceled" && (
+                      <span className="text-red-500">Canceled</span>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -186,4 +201,4 @@ const AllDonationRequests = () => {
   );
 };
 
-export default AllDonationRequests;
+export default VolunteerDonationRequests;

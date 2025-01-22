@@ -15,7 +15,7 @@ const menuItems = [
   },
   {
     label: "Content Management",
-    address: "/dashboard/volunteer/content-management",
+    address: "/dashboard/content-management",
     icon: BsFileText,
   },
 ];

@@ -29,13 +29,13 @@ import EditDonationRequest from "../pages/Dashboard/Common/EditDonationRequest";
 
 // Volunteer Pages
 import VolunteerDashboard from "../pages/Dashboard/Volunteer/VolunteerDashboard";
-import VolunteerDonationRequests from "../pages/Dashboard/Volunteer/AllDonationRequests";
+import VolunteerDonationRequests from "../pages/Dashboard/Volunteer/VolunteerDonationRequests";
 // import DonationRequestDetailsVolunteer from "../pages/Dashboard/Volunteer/DonationRequestDetails";
 
 // Profile Page
 import EditProfile from "../pages/EditProfile/EditProfile";
 import Profile from "../pages/Dashboard/Common/Profile";
-import AllDonationRequestDetails from "../pages/Dashboard/Admin/AllDonationRequestDetails";
+// import AllDonationRequestDetails from "../pages/Dashboard/Admin/AllDonationRequestDetails";
 import DonationRequestDetails from "../pages/DonationRequests/DonationRequestDetails";
 import AdminRoute from "./AdminRoute";
 
@@ -107,44 +107,32 @@ export const router = createBrowserRouter([
         element: <AdminDashboard />,
       },
       {
-        path: "admin/all-users",
+        path: "all-users",
         element: <AllUsers />,
       },
       {
-        path: "admin/all-donation-requests",
+        path: "all-donation-requests",
         element: (
           <AdminRoute>
             <AllDonationRequests />
           </AdminRoute>
         ),
       },
+      // {
+      //   path: "admin/all-donation-requests/:id",
+      //   element: <AllDonationRequestDetails />,
+      // },
       {
-        path: "admin/all-donation-requests/:id",
-        element: <AllDonationRequestDetails />,
+        path: "content-management",
+        element: <ContentManagement />,
       },
       {
-        path: "admin/content-management",
-        element: (
-          <AdminRoute>
-            <ContentManagement />
-          </AdminRoute>
-        ),
+        path: "content-management/add-blog",
+        element: <AddBlog />,
       },
       {
-        path: "admin/content-management/add-blog",
-        element: (
-          <AdminRoute>
-            <AddBlog />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "admin/content-management/edit-blog/:id",
-        element: (
-          <AdminRoute>
-            <EditBlog />
-          </AdminRoute>
-        ),
+        path: "content-management/edit-blog/:id",
+        element: <EditBlog />,
       },
 
       // Donor Routes

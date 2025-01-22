@@ -8,6 +8,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 import { toast } from "react-toastify";
+import useRole from "../../../hooks/useRole";
 
 const ContentManagement = () => {
   // const [blogs, setBlogs] = useState([]);
@@ -18,6 +19,7 @@ const ContentManagement = () => {
   const [deletingBlogId, setDeletingBlogId] = useState(null);
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
+  const [role] = useRole();
 
   const closeModal = () => setIsOpen(false);
 
@@ -113,9 +115,7 @@ const ContentManagement = () => {
         </h1>
         <button
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg shadow-lg hover:bg-blue-700"
-          onClick={() =>
-            navigate("/dashboard/admin/content-management/add-blog")
-          }
+          onClick={() => navigate("/dashboard/content-management/add-blog")}
         >
           <FiPlus className="text-lg" />
           Add Blog
@@ -169,33 +169,39 @@ const ContentManagement = () => {
 
             <div className="mt-4 flex flex-col justify-between items-center gap-4">
               {/* Publish/Unpublish Button */}
-              <button
-                className={`w-full px-4 py-2 text-white font-medium rounded-lg shadow-md ${
-                  blog.status === "draft"
-                    ? "bg-green-500 hover:bg-green-600"
-                    : "bg-yellow-500 hover:bg-yellow-600"
-                }`}
-                onClick={() => handleStatus(blog._id)}
-              >
-                {blog.status === "draft" ? "Publish" : "Unpublish"}
-              </button>
+              {role === "admin" && (
+                <button
+                  className={`w-full px-4 py-2 text-white font-medium rounded-lg shadow-md ${
+                    blog.status === "draft"
+                      ? "bg-green-500 hover:bg-green-600"
+                      : "bg-yellow-500 hover:bg-yellow-600"
+                  }`}
+                  onClick={() => handleStatus(blog._id)}
+                >
+                  {blog.status === "draft" ? "Publish" : "Unpublish"}
+                </button>
+              )}
 
               {/* Edit and Delete Buttons */}
               <div className="flex justify-between items-center gap-4 w-full">
                 <Link
-                  to={`/dashboard/admin/content-management/edit-blog/${blog._id}`}
+                  to={`/dashboard/content-management/edit-blog/${blog._id}`}
                   className="w-1/2 px-4 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 flex justify-center items-center gap-2"
                 >
                   <FiEdit />
                   <span>Edit</span>
                 </Link>
-                <button
-                  className="w-1/2 px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 flex justify-center items-center gap-2"
-                  onClick={() => handleDelete(blog._id)}
-                >
-                  <FiTrash />
-                  <span>Delete</span>
-                </button>
+                {role === "admin" && (
+                  <button
+                    className="w-1/2 px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 flex justify-center items-center gap-2"
+                    onClick={() => {
+                      setDeletingBlogId(blog._id);
+                      setIsOpen(true);
+                    }}
+                  >
+                    <span>Delete</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>

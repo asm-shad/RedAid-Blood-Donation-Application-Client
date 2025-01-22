@@ -10,17 +10,17 @@ const menuItems = [
   },
   {
     label: "All Users",
-    address: "/dashboard/admin/all-users",
+    address: "/dashboard/all-users",
     icon: BsPeople,
   },
   {
     label: "All Blood Requests",
-    address: "/dashboard/admin/all-donation-requests",
+    address: "/dashboard/all-donation-requests",
     icon: BsDropletHalf,
   },
   {
     label: "Content Management",
-    address: "/dashboard/admin/content-management",
+    address: "/dashboard/content-management",
     icon: BsFileText,
   },
 ];
