@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import Main from "../Layout/Main";
 import Home from "../pages/Home/Home/Home";
 import Login from "../pages/Login/Login";
@@ -37,6 +37,7 @@ import EditProfile from "../pages/EditProfile/EditProfile";
 import Profile from "../pages/Dashboard/Common/Profile";
 import AllDonationRequestDetails from "../pages/Dashboard/Admin/AllDonationRequestDetails";
 import DonationRequestDetails from "../pages/DonationRequests/DonationRequestDetails";
+import AdminRoute from "./AdminRoute";
 
 export const router = createBrowserRouter([
   // Public Routes
@@ -93,6 +94,10 @@ export const router = createBrowserRouter([
     element: <DashboardLayout />,
     children: [
       {
+        index: true, // This acts as the default page when accessing /dashboard
+        element: <Navigate to="/dashboard/profile" replace />,
+      },
+      {
         path: "profile",
         element: <Profile />,
       },
@@ -107,7 +112,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "admin/all-donation-requests",
-        element: <AllDonationRequests />,
+        element: (
+          <AdminRoute>
+            <AllDonationRequests />
+          </AdminRoute>
+        ),
       },
       {
         path: "admin/all-donation-requests/:id",
@@ -115,15 +124,27 @@ export const router = createBrowserRouter([
       },
       {
         path: "admin/content-management",
-        element: <ContentManagement />,
+        element: (
+          <AdminRoute>
+            <ContentManagement />
+          </AdminRoute>
+        ),
       },
       {
         path: "admin/content-management/add-blog",
-        element: <AddBlog />,
+        element: (
+          <AdminRoute>
+            <AddBlog />
+          </AdminRoute>
+        ),
       },
       {
         path: "admin/content-management/edit-blog/:id",
-        element: <EditBlog />,
+        element: (
+          <AdminRoute>
+            <EditBlog />
+          </AdminRoute>
+        ),
       },
 
       // Donor Routes

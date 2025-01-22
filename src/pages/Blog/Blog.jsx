@@ -36,14 +36,14 @@ const Blog = () => {
       <header className="bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white py-12">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl font-extrabold mb-4">
-            Welcome to the Blog Hub
+            Welcome to RedAid Blog Posts
           </h1>
           <p className="text-lg mb-6">
             Discover insightful blogs on health, fitness, nutrition, and more.
           </p>
           <div className="flex justify-center space-x-4">
             <Link
-              to="/create-blog"
+              to="/dashboard/admin/content-management/add-blog"
               className="px-6 py-3 bg-white text-red-600 font-medium rounded-lg shadow-md hover:bg-gray-100 transition"
             >
               Create a Blog

@@ -1,40 +1,32 @@
+import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
+import { useNavigate } from "react-router-dom";
 import coverImg from "../../../assets/cork-board.jpg";
 import useAuth from "../../../hooks/useAuth";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
-import { useEffect, useState } from "react";
+import useRole from "../../../hooks/useRole";
+
 const Profile = () => {
-  const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useAuth();
+  const [role, isLoading] = useRole();
+  const navigate = useNavigate();
 
+  // Redirect to login if user is not found (after logout)
   useEffect(() => {
-    // Simulate checking authentication status
-    if (user === null) {
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
-    } else {
-      setLoading(false);
+    if (!loading && !user) {
+      navigate("/login");
     }
-  }, [user]);
+  }, [user, loading, navigate]);
 
-  if (loading) {
+  // Show loading spinner while user or role data is being fetched
+  if (isLoading || loading) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <LoadingSpinner></LoadingSpinner>
+        <LoadingSpinner />
       </div>
     );
   }
 
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-xl text-gray-600">User not found. Redirecting...</p>
-      </div>
-    );
-  }
-
-  console.log("User", user);
   return (
     <div className="flex justify-center items-center h-screen">
       <Helmet>
@@ -50,31 +42,33 @@ const Profile = () => {
           <a href="#" className="relative block">
             <img
               alt="profile"
-              src={user?.photoURL}
-              className="mx-auto object-cover rounded-full h-24 w-24  border-2 border-white "
+              src={user?.photoURL || "/default-avatar.png"}
+              className="mx-auto object-cover rounded-full h-24 w-24 border-2 border-white"
             />
           </a>
 
-          <p className="p-2 px-4 text-xs text-white bg-[#EB2C29] rounded-full">
-            Donor
+          <p className="p-2 px-4 text-xs text-white bg-[#EB2C29] rounded-full capitalize">
+            {role || "No Role Assigned"}
           </p>
-          <p className="mt-2 text-xl font-medium text-gray-800 ">
-            User Name: {user?.displayName}
+          <p className="mt-2 text-xl font-medium text-gray-800">
+            User Name: {user?.displayName || "Guest User"}
           </p>
           <div className="w-full p-2 mt-4 rounded-lg">
-            <div className="flex flex-wrap items-center justify-between text-sm text-gray-600 ">
+            <div className="flex flex-wrap items-center justify-between text-sm text-gray-600">
               <p className="flex flex-col">
                 Name
-                <span className="font-bold text-black ">
-                  {user.displayName}
+                <span className="font-bold text-black">
+                  {user?.displayName || "N/A"}
                 </span>
               </p>
               <p className="flex flex-col">
                 Email
-                <span className="font-bold text-black ">{user.email}</span>
+                <span className="font-bold text-black">
+                  {user?.email || "N/A"}
+                </span>
               </p>
 
-              <div>
+              <div className="mt-4">
                 <button className="bg-[#EB2C29] px-10 py-1 rounded-lg text-white cursor-pointer hover:bg-lime-800 block mb-1">
                   Update Profile
                 </button>
