@@ -7,6 +7,7 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
+import { toast } from "react-toastify";
 
 const ContentManagement = () => {
   // const [blogs, setBlogs] = useState([]);
@@ -31,6 +32,22 @@ const ContentManagement = () => {
       return data;
     },
   });
+
+  // Handle status update
+  const handleStatus = async (requestId) => {
+    try {
+      console.log("Updating status for request ID:", requestId);
+      const { data } = await axiosSecure.patch(`/blogs/status/${requestId}`);
+      refetch();
+      toast.success("Successfully Request Status Changed");
+    } catch (error) {
+      console.error(
+        "Error updating status:",
+        error.response?.data || error.message
+      );
+      toast.error("Request Status Change Failed");
+    }
+  };
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -71,41 +88,6 @@ const ContentManagement = () => {
       });
 
       closeModal(); // Close modal if error occurs
-    }
-  };
-
-  const handlePublishToggle = async (id, newStatus) => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/blogs/${id}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: newStatus }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to update blog status.");
-      }
-
-      const updatedBlogs = blogs.map((blog) =>
-        blog._id === id ? { ...blog, status: newStatus } : blog
-      );
-      setBlogs(updatedBlogs);
-
-      Swal.fire(
-        "Success",
-        `Blog has been ${
-          newStatus === "published" ? "published" : "unpublished"
-        } successfully!`,
-        "success"
-      );
-    } catch (err) {
-      console.error("Error updating blog status:", err);
-      Swal.fire("Error", "Failed to update blog status.", "error");
     }
   };
 
@@ -193,12 +175,7 @@ const ContentManagement = () => {
                     ? "bg-green-500 hover:bg-green-600"
                     : "bg-yellow-500 hover:bg-yellow-600"
                 }`}
-                onClick={() =>
-                  handlePublishToggle(
-                    blog._id,
-                    blog.status === "draft" ? "published" : "draft"
-                  )
-                }
+                onClick={() => handleStatus(blog._id)}
               >
                 {blog.status === "draft" ? "Publish" : "Unpublish"}
               </button>
