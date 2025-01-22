@@ -12,7 +12,11 @@ const MyDonationRequests = () => {
   const itemsPerPage = 5;
   const axiosSecure = useAxiosSecure();
 
-  const { data: requestDetails = [], isLoading: isLoadingRequest } = useQuery({
+  const {
+    data: requestDetails = [],
+    isLoading: isLoadingRequest,
+    refetch,
+  } = useQuery({
     queryKey: ["donationRequest", user?.email],
     queryFn: async () => {
       const { data } = await axiosSecure(
@@ -21,6 +25,23 @@ const MyDonationRequests = () => {
       return data;
     },
   });
+
+  const handleStatus = async (requestId) => {
+    try {
+      console.log("Updating status for request ID:", requestId);
+      const { data } = await axiosSecure.patch(
+        `/donation-requests/status/${requestId}`
+      );
+      refetch();
+      toast.success("Successfully Request Status Changed");
+    } catch (error) {
+      console.error(
+        "Error updating status:",
+        error.response?.data || error.message
+      );
+      toast.error("Request Status Change Failed");
+    }
+  };
 
   if (isLoadingRequest) return <LoadingSpinner />;
 
@@ -101,15 +122,21 @@ const MyDonationRequests = () => {
                 >
                   {request.status}
                 </td>
-                <td className="py-2 px-4 space-x-2">
-                  <div className=" flex justify-center items-center">
+                <td className="border border-gray-300 py-2 px-4 space-x-2">
+                  <div className="flex justify-center items-center">
                     {request.status === "pending" && (
-                      <button className="text-red-500 hover:text-red-700">
+                      <button
+                        onClick={() => handleStatus(request._id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
                         <FaTimesCircle size={20} />
                       </button>
                     )}
                     {request.status === "inprogress" && (
-                      <button className="text-green-500 hover:text-green-700">
+                      <button
+                        onClick={() => handleStatus(request._id)}
+                        className="text-green-500 hover:text-green-700"
+                      >
                         <FaCheckCircle size={20} />
                       </button>
                     )}
@@ -119,7 +146,7 @@ const MyDonationRequests = () => {
                       </button>
                     )}
                     {request.status === "canceled" && (
-                      <button className="text-green-500 hover:text-green-700">
+                      <button className="text-red-500 hover:text-green-700">
                         Canceled
                       </button>
                     )}
