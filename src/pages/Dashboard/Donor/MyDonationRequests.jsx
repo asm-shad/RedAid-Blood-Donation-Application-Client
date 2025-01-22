@@ -3,16 +3,16 @@ import useAuth from "../../../hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
+import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 const MyDonationRequests = () => {
-  const { user } = useAuth(); // Get the current logged-in user
-  const [donationRequests, setDonationRequests] = useState([]); // Donation requests
-  const [filter, setFilter] = useState("all"); // Status filter
-  const [currentPage, setCurrentPage] = useState(1); // Pagination
-  const itemsPerPage = 5; // Number of rows per page
+  const { user } = useAuth();
+  const [filter, setFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
   const axiosSecure = useAxiosSecure();
 
-  const { data: requestDetails = {}, isLoading: isLoadingRequest } = useQuery({
+  const { data: requestDetails = [], isLoading: isLoadingRequest } = useQuery({
     queryKey: ["donationRequest", user?.email],
     queryFn: async () => {
       const { data } = await axiosSecure(
@@ -22,16 +22,13 @@ const MyDonationRequests = () => {
     },
   });
 
-  console.log(requestDetails);
-  if (isLoadingRequest) return <LoadingSpinner></LoadingSpinner>;
+  if (isLoadingRequest) return <LoadingSpinner />;
 
-  // Filtered Data
   const filteredRequests =
     filter === "all"
       ? requestDetails
       : requestDetails.filter((request) => request.status === filter);
 
-  // Pagination Logic
   const totalItems = filteredRequests.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const paginatedRequests = filteredRequests.slice(
@@ -45,12 +42,10 @@ const MyDonationRequests = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Page Title */}
       <h1 className="text-2xl font-bold text-gray-800 mb-4">
         My Donation Requests
       </h1>
 
-      {/* Filter Section */}
       <div className="mb-4">
         <label htmlFor="filter" className="text-gray-700 font-semibold">
           Filter by Status:
@@ -69,7 +64,6 @@ const MyDonationRequests = () => {
         </select>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto bg-white shadow-md rounded-md p-4">
         <table className="w-full table-auto">
           <thead>
@@ -80,6 +74,7 @@ const MyDonationRequests = () => {
               <th className="py-2 px-4">Time</th>
               <th className="py-2 px-4">Blood Group</th>
               <th className="py-2 px-4">Status</th>
+              <th className="py-2 px-4">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -106,13 +101,36 @@ const MyDonationRequests = () => {
                 >
                   {request.status}
                 </td>
+                <td className="py-2 px-4 space-x-2">
+                  <div className=" flex justify-center items-center">
+                    {request.status === "pending" && (
+                      <button className="text-red-500 hover:text-red-700">
+                        <FaTimesCircle size={20} />
+                      </button>
+                    )}
+                    {request.status === "inprogress" && (
+                      <button className="text-green-500 hover:text-green-700">
+                        <FaCheckCircle size={20} />
+                      </button>
+                    )}
+                    {request.status === "done" && (
+                      <button className="text-green-500 hover:text-green-700">
+                        Done
+                      </button>
+                    )}
+                    {request.status === "canceled" && (
+                      <button className="text-green-500 hover:text-green-700">
+                        Canceled
+                      </button>
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex justify-center mt-4">
         {Array.from({ length: totalPages }, (_, index) => (
           <button

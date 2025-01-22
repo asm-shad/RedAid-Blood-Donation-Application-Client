@@ -4,10 +4,17 @@ import Swal from "sweetalert2";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEdit, FaTrashAlt, FaEye } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrashAlt,
+  FaEye,
+  FaTimesCircle,
+  FaCheckCircle,
+} from "react-icons/fa";
 import districtsData from "../../../assets/json/districts.json"; // Import districts JSON
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import DeleteModal from "../../Modal/DeleteModal";
+import { toast } from "react-toastify";
 
 const AllDonationRequests = () => {
   const [filter, setFilter] = useState("all");
@@ -40,6 +47,24 @@ const AllDonationRequests = () => {
     },
   });
 
+  // Handle status update
+  const handleStatus = async (requestId) => {
+    try {
+      console.log("Updating status for request ID:", requestId);
+      const { data } = await axiosSecure.patch(
+        `/donation-requests/status/${requestId}`
+      );
+      refetch();
+      toast.success("Successfully Request Status Changed");
+    } catch (error) {
+      console.error(
+        "Error updating status:",
+        error.response?.data || error.message
+      );
+      toast.error("Request Status Change Failed");
+    }
+  };
+
   if (isLoading) return <LoadingSpinner />;
 
   const handleDelete = (id) => {
@@ -53,30 +78,32 @@ const AllDonationRequests = () => {
       await axiosSecure.delete(`/donation-requests/${deletingRequestId}`);
       refetch(); // Refetch data after deletion
 
-      // Show success toast
       Swal.fire({
         icon: "success",
         title: "Deleted!",
         text: "The donation request has been deleted.",
-        timer: 2000, // Toast will disappear after 2 seconds
+        timer: 2000,
         showConfirmButton: false,
       });
 
-      closeModal(); // Close modal after deletion
-      setDeletingRequestId(null); // Clear the request ID
+      closeModal();
+      setDeletingRequestId(null);
     } catch (error) {
       console.error("Error deleting donation request:", error);
 
-      // Show error toast
+      // Get error message from backend response
+      const errorMessage =
+        error.response?.data || "Failed to delete the donation request.";
+
       Swal.fire({
         icon: "error",
-        title: "Error!",
-        text: "Failed to delete the donation request.",
-        timer: 2000, // Toast will disappear after 2 seconds
+        title: "Not Allowed!",
+        text: errorMessage, // Show specific backend message
+        timer: 2000,
         showConfirmButton: false,
       });
 
-      closeModal(); // Close modal if error occurs
+      closeModal();
     }
   };
 
@@ -153,6 +180,7 @@ const AllDonationRequests = () => {
               <th className="py-2 px-4">Blood Group</th>
               <th className="py-2 px-4">Status</th>
               <th className="py-2 px-4">Actions</th>
+              <th className="py-2 px-4">Operation</th>
             </tr>
           </thead>
           <tbody>
@@ -206,6 +234,36 @@ const AllDonationRequests = () => {
                     >
                       <FaEye />
                     </Link>
+                  </div>
+                </td>
+                <td className="border border-gray-300 py-2 px-4 space-x-2">
+                  <div className="flex justify-center items-center">
+                    {request.status === "pending" && (
+                      <button
+                        onClick={() => handleStatus(request._id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <FaTimesCircle size={20} />
+                      </button>
+                    )}
+                    {request.status === "inprogress" && (
+                      <button
+                        onClick={() => handleStatus(request._id)}
+                        className="text-green-500 hover:text-green-700"
+                      >
+                        <FaCheckCircle size={20} />
+                      </button>
+                    )}
+                    {request.status === "done" && (
+                      <button className="text-green-500 hover:text-green-700">
+                        Done
+                      </button>
+                    )}
+                    {request.status === "canceled" && (
+                      <button className="text-red-500 hover:text-green-700">
+                        Canceled
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>
