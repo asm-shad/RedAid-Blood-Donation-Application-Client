@@ -1,9 +1,40 @@
 import { Helmet } from "react-helmet-async";
 import coverImg from "../../../assets/cork-board.jpg";
 import useAuth from "../../../hooks/useAuth";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
+import { useEffect, useState } from "react";
 const Profile = () => {
   const { user } = useAuth();
-  console.log(user);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate checking authentication status
+    if (user === null) {
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <LoadingSpinner></LoadingSpinner>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-xl text-gray-600">User not found. Redirecting...</p>
+      </div>
+    );
+  }
+
+  console.log("User", user);
   return (
     <div className="flex justify-center items-center h-screen">
       <Helmet>
@@ -19,7 +50,7 @@ const Profile = () => {
           <a href="#" className="relative block">
             <img
               alt="profile"
-              src={user.photoURL}
+              src={user?.photoURL}
               className="mx-auto object-cover rounded-full h-24 w-24  border-2 border-white "
             />
           </a>
@@ -28,7 +59,7 @@ const Profile = () => {
             Donor
           </p>
           <p className="mt-2 text-xl font-medium text-gray-800 ">
-            User Id: {user.uid}
+            User Name: {user?.displayName}
           </p>
           <div className="w-full p-2 mt-4 rounded-lg">
             <div className="flex flex-wrap items-center justify-between text-sm text-gray-600 ">

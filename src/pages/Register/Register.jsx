@@ -7,7 +7,6 @@ import registerBg from "../../assets/heart-214014_1920.jpg"; // Background image
 import { Helmet } from "react-helmet-async";
 import districtsData from "../../assets/json/districts.json";
 import upazilasData from "../../assets/json/upazilas.json";
-import axios from "axios";
 import { imageUpload, saveUser } from "../../api/utils";
 import useAuth from "../../hooks/useAuth";
 import { TbFidgetSpinner } from "react-icons/tb";

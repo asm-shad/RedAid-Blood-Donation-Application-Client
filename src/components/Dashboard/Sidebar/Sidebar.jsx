@@ -7,6 +7,7 @@ import VolunteerMenu from "./Menu/VolunteerMenu";
 import MenuItem from "./Menu/MenuItem";
 import { Link, useNavigate } from "react-router-dom";
 import { BsGraphUp } from "react-icons/bs";
+import Profile from "../../../pages/Dashboard/Common/Profile";
 
 const Sidebar = ({ logOut }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -45,7 +46,7 @@ const Sidebar = ({ logOut }) => {
       case "volunteer":
         return <VolunteerMenu />;
       default:
-        return null;
+        return <Profile />;
     }
   };
 
@@ -94,8 +95,8 @@ const Sidebar = ({ logOut }) => {
             {renderMenu()}
             <MenuItem
               icon={BsGraphUp}
-              label="Statistics"
-              address="/dashboard"
+              label="Profile"
+              address="/dashboard/profile"
             />
           </nav>
         </div>

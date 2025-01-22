@@ -1,17 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import logo from "../../../assets/logo.png";
 import { Link } from "react-router-dom";
-import { IoMoon, IoSunny } from "react-icons/io5";
 import useAuth from "../../../hooks/useAuth";
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
-  const [darkTheme, setDarkTheme] = useState(false);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    darkTheme ? root.classList.add("dark") : root.classList.remove("dark");
-  }, [darkTheme]);
 
   return (
     <div className="navbar sticky top-0 z-50 px-4 py-3 shadow-md bg-gradient-to-r from-red-500 via-red-600 to-red-700 text-white">
@@ -19,7 +12,11 @@ const Navbar = () => {
         {/* Left Section - Logo */}
         <div className="flex-1">
           <Link to="/" className="flex gap-2 items-center">
-            <img className="w-auto h-8" src={logo} alt="Logo" />
+            <img
+              className="w-auto h-8 rounded-full border-2 border-white bg-white"
+              src={logo}
+              alt="Logo"
+            />
             <span className="hidden md:inline font-bold font-rancho text-3xl">
               RedAid
             </span>
@@ -28,19 +25,12 @@ const Navbar = () => {
 
         {/* Right Section - Links */}
         <div className="flex items-center gap-4">
-          {/* Toggle Button for Dark Mode */}
-          <button
-            onClick={() => setDarkTheme(!darkTheme)}
-            className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 bg-white dark:bg-gray-800 rounded-full shadow-md transition-all duration-300 focus:outline-none"
-          >
-            {darkTheme ? (
-              <IoMoon className="text-white w-5 h-5" />
-            ) : (
-              <IoSunny className="text-yellow-400 w-5 h-5" />
-            )}
-          </button>
-
           <ul className="menu menu-horizontal px-1 flex items-center gap-4">
+            <li>
+              <Link to="/" className="hover:underline">
+                Home
+              </Link>
+            </li>
             <li>
               <Link to="/donation-requests" className="hover:underline">
                 Donation Requests
@@ -76,7 +66,7 @@ const Navbar = () => {
                   >
                     <div
                       title={user?.displayName || "User"}
-                      className="w-8 rounded-full"
+                      className="w-8 rounded-full border-2 border-white"
                     >
                       <img
                         referrerPolicy="no-referrer"

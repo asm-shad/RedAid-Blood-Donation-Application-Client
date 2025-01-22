@@ -4,7 +4,7 @@ import MenuItem from "./MenuItem";
 
 const menuItems = [
   {
-    label: "Dashboard Home",
+    label: "Dashboard",
     address: "/dashboard/volunteer",
     icon: FaHome,
   },
