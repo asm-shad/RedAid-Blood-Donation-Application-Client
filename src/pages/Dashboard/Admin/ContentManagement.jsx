@@ -34,12 +34,12 @@ const ContentManagement = () => {
   });
 
   // Handle status update
-  const handleStatus = async (requestId) => {
+  const handleStatus = async (blogId) => {
     try {
-      console.log("Updating status for request ID:", requestId);
-      const { data } = await axiosSecure.patch(`/blogs/status/${requestId}`);
-      refetch();
+      console.log("Updating status for request ID:", blogId);
+      const { data } = await axiosSecure.patch(`/blogs/status/${blogId}`);
       toast.success("Successfully Request Status Changed");
+      refetch();
     } catch (error) {
       console.error(
         "Error updating status:",
