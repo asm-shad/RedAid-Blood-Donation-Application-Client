@@ -56,7 +56,7 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <div className="min-h-screen mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
       <h2 className="text-2xl font-bold mb-4">Edit Profile</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
@@ -99,7 +99,7 @@ const EditProfile = () => {
           {profileData.image && (
             <img
               src={profileData.image}
-              alt="Profile"
+              alt=""
               className="mt-2 h-24 w-24 rounded-full"
             />
           )}
