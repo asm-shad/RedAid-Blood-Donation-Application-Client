@@ -6,6 +6,8 @@ import useAuth from "../../../hooks/useAuth";
 import UpdateUserModal from "../../Modal/UpdateUserModal";
 import StatusUpdateModal from "../../Modal/StatusUpdateModal";
 import { toast } from "react-toastify";
+import anotherAnimation from "../../../assets/json/split-blood.json";
+import LottieBackground from "../../../components/LottieBackground/LottieBackground";
 
 const AllUsers = () => {
   const [filter, setFilter] = useState("all");
@@ -115,6 +117,10 @@ const AllUsers = () => {
       </div>
 
       <div className="overflow-x-auto bg-white shadow-md rounded-md p-4">
+        <LottieBackground
+          animationData={anotherAnimation}
+          className="opacity-10"
+        />
         <table className="w-full table-auto">
           <thead>
             <tr className="bg-gray-200 text-gray-600 uppercase text-sm">
