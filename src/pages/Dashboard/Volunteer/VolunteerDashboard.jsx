@@ -1,9 +1,24 @@
 import React from "react";
 import { FaUsers, FaDollarSign, FaHeartbeat } from "react-icons/fa";
 import useAuth from "../../../hooks/useAuth";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
+import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 
 const VolunteerDashboard = () => {
   const { user } = useAuth(); // Get the authenticated user's details
+  const axiosSecure = useAxiosSecure();
+  const { data: statData, isLoading } = useQuery({
+    queryKey: ["dashboard-stat"],
+    queryFn: async () => {
+      const { data } = await axiosSecure("/dashboard-stat");
+      return data;
+    },
+  });
+  console.log(statData);
+  const { totalDonor, totalRequest, totalFund } = statData || {};
+
+  if (isLoading) return <LoadingSpinner></LoadingSpinner>;
 
   return (
     <div className="p-10 bg-gray-100 min-h-screen">
@@ -31,7 +46,7 @@ const VolunteerDashboard = () => {
           </div>
           <div>
             <h2 className="text-lg font-semibold text-gray-800">Total Users</h2>
-            <p className="text-gray-600 text-sm">120 Donors</p>
+            <p className="text-gray-600 text-sm">{totalDonor} Donors</p>
           </div>
         </div>
 
@@ -44,7 +59,7 @@ const VolunteerDashboard = () => {
             <h2 className="text-lg font-semibold text-gray-800">
               Total Funding
             </h2>
-            <p className="text-gray-600 text-sm">$5,000</p>
+            <p className="text-gray-600 text-sm">$ {totalFund}</p>
           </div>
         </div>
 
@@ -57,7 +72,7 @@ const VolunteerDashboard = () => {
             <h2 className="text-lg font-semibold text-gray-800">
               Total Blood Requests
             </h2>
-            <p className="text-gray-600 text-sm">75 Requests</p>
+            <p className="text-gray-600 text-sm">{totalRequest} Requests</p>
           </div>
         </div>
       </div>
