@@ -1,19 +1,21 @@
 import React, { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import login from "../../assets/heart-214014_1920.jpg"; // Background image
 import { TbFidgetSpinner } from "react-icons/tb";
 import useAuth from "../../hooks/useAuth";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState({ login: "" });
-  const { signIn, signInWithGoogle, loading } = useAuth();
+  const { signIn, signInWithGoogle, loading, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  const form = location.state?.from?.pathname || "/";
+  const from = location?.state?.from?.pathname || "/";
+  if (loading) return <LoadingSpinner />;
+  if (user) return <Navigate to={from} replace={true} />;
 
   const handleSubmit = (e) => {
     e.preventDefault();

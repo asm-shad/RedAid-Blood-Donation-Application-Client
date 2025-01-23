@@ -1,10 +1,12 @@
-import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
+import splitBloodAnimation from "../../../assets/json/split-blood.json"; // Import animation
 import coverImg from "../../../assets/cork-board.jpg";
 import useAuth from "../../../hooks/useAuth";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 import useRole from "../../../hooks/useRole";
+import LottieBackground from "../../../components/LottieBackground/LottieBackground";
+import { useEffect } from "react";
 
 const Profile = () => {
   const { user, loading } = useAuth();
@@ -28,11 +30,16 @@ const Profile = () => {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="relative h-screen flex justify-center items-center">
       <Helmet>
         <title>Profile</title>
       </Helmet>
-      <div className="bg-white shadow-lg rounded-2xl md:w-4/5 lg:w-3/5">
+
+      {/* Lottie background */}
+      <LottieBackground animationData={splitBloodAnimation} />
+
+      {/* Content */}
+      <div className="relative bg-white shadow-lg rounded-2xl z-10 md:w-4/5 lg:w-3/5">
         <img
           alt="cover photo"
           src={coverImg}

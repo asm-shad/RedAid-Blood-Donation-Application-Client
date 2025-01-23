@@ -33,7 +33,7 @@ import VolunteerDonationRequests from "../pages/Dashboard/Volunteer/VolunteerDon
 // import DonationRequestDetailsVolunteer from "../pages/Dashboard/Volunteer/DonationRequestDetails";
 
 // Profile Page
-import EditProfile from "../pages/EditProfile/EditProfile";
+import EditProfile from "../pages/Dashboard/Common/EditProfile";
 import Profile from "../pages/Dashboard/Common/Profile";
 // import AllDonationRequestDetails from "../pages/Dashboard/Admin/AllDonationRequestDetails";
 import DonationRequestDetails from "../pages/DonationRequests/DonationRequestDetails";
