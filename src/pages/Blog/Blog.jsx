@@ -10,7 +10,7 @@ const Blog = () => {
     queryKey: ["redLifeAid"],
     queryFn: async () => {
       const { data } = await axios(`${import.meta.env.VITE_API_URL}/blogs`);
-      return data;
+      return data.filter((blog) => blog.status === "published"); // Only include published blogs
     },
   });
 
