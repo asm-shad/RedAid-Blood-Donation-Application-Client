@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import {
@@ -19,6 +19,10 @@ import Button from "../../components/Button/Button";
 const DonationRequestDetails = () => {
   const { id } = useParams();
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // Assuming a global state or context holds the logged-in user's info
+  const user = JSON.parse(localStorage.getItem("user")); // or use a context to get logged-in user
 
   // Fetch donation request details
   const { data: requestDetails = {}, isLoading: isLoadingRequest } = useQuery({
@@ -62,6 +66,15 @@ const DonationRequestDetails = () => {
   const { quote, author } = quoteData;
 
   if (isLoadingRequest || isLoadingQuote) return <LoadingSpinner />;
+
+  const handleDonateClick = () => {
+    if (!user) {
+      // If user is not logged in, navigate to login page
+      navigate("/login");
+    } else {
+      setIsOpen(true); // Proceed with donation if logged in
+    }
+  };
 
   return (
     <Container className="min-h-screen flex flex-col justify-between">
@@ -143,7 +156,7 @@ const DonationRequestDetails = () => {
           </div>
           <div className="flex justify-center mt-6">
             <Button
-              onClick={() => setIsOpen(true)}
+              onClick={handleDonateClick}
               label={
                 status === "pending" ? "Donate Now" : "Donation In Progress"
               }

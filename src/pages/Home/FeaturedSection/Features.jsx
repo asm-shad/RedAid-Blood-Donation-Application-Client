@@ -1,5 +1,6 @@
 import React from "react";
 import { FaClock, FaHeart, FaShieldAlt, FaGlobe } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Features = () => {
   return (
@@ -68,9 +69,12 @@ const Features = () => {
           <p className="text-lg mb-6">
             Join our community of donors and make a difference today!
           </p>
-          <button className="btn bg-white text-red-600 hover:bg-gray-100 px-6 py-3 rounded-lg text-lg font-semibold">
+          <Link
+            to="/donation-requests"
+            className="btn bg-white text-red-600 hover:bg-gray-100 px-6 py-3 rounded-lg text-lg font-semibold"
+          >
             Become a Donor Now
-          </button>
+          </Link>
         </div>
       </section>
 

@@ -14,7 +14,7 @@ const Profile = () => {
   const { user, loading } = useAuth();
   const [role, isLoading] = useRole();
   const navigate = useNavigate();
-
+  console.log(user);
   // Fetch user data based on email using the new query function format
   const {
     data: fetchedUser,
@@ -68,7 +68,7 @@ const Profile = () => {
       </Helmet>
 
       {/* Content */}
-      <div className="relative bg-white shadow-lg rounded-2xl z-10 md:w-4/5 lg:w-3/5">
+      <div className="relative bg-white bg-opacity-70 backdrop-blur-md shadow-lg rounded-2xl z-1 md:w-4/5 lg:w-3/5 p-4">
         <img
           alt="cover photo"
           src={coverImg}
@@ -86,36 +86,37 @@ const Profile = () => {
           <p className="p-2 px-4 text-xs text-white bg-[#EB2C29] rounded-full capitalize">
             {role || "No Role Assigned"}
           </p>
-          <p className="mt-2 text-xl font-medium text-gray-800">
-            UserName: {fetchedUser?.displayName || "Guest User"}
+          <p className="mt-2 text-2xl font-bold text-gray-800">
+            UserName: {user?.displayName || "Guest User"}
           </p>
           <div className="w-full p-2 mt-4 rounded-lg">
             <div className="flex flex-wrap items-center justify-between text-sm text-gray-600">
-              <p className="flex flex-col">
-                BloodGroup
+              <p className="flex flex-col text-xl">
+                BloodGroup:
                 <span className="font-bold text-black">
                   {fetchedUser?.bloodGroup || "N/A"}
                 </span>
               </p>
-              <p className="flex flex-col">
-                Email
+              <p className="flex flex-col text-xl">
+                Email:
                 <span className="font-bold text-black">
                   {fetchedUser?.email || "N/A"}
                 </span>
               </p>
-
-              <div className="mt-4">
-                <button
-                  onClick={() => navigate("/dashboard/profile/edit")}
-                  className="bg-[#EB2C29] px-10 py-1 rounded-lg text-white cursor-pointer hover:bg-lime-800 block mb-1"
-                >
-                  Update Profile
-                </button>
-                <button className="bg-[#EB2C29] px-7 py-1 rounded-lg text-white cursor-pointer hover:bg-lime-800">
-                  Change Password
-                </button>
-              </div>
             </div>
+          </div>
+
+          {/* Buttons moved back below */}
+          <div className="mt-4">
+            <button
+              onClick={() => navigate("/dashboard/profile/edit")}
+              className="bg-[#EB2C29] px-10 py-1 rounded-lg text-white cursor-pointer hover:bg-lime-800 block mb-1"
+            >
+              Update Profile
+            </button>
+            <button className="bg-[#EB2C29] px-7 py-1 rounded-lg text-white cursor-pointer hover:bg-lime-800">
+              Change Password
+            </button>
           </div>
         </div>
       </div>

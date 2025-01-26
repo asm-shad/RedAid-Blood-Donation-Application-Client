@@ -6,6 +6,7 @@ import login from "../../assets/heart-214014_1920.jpg"; // Background image
 import { TbFidgetSpinner } from "react-icons/tb";
 import useAuth from "../../hooks/useAuth";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import Swal from "sweetalert2"; // Import SweetAlert2
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -39,32 +40,18 @@ const Login = () => {
       .catch((err) => {
         console.error(err.message);
         setError({ login: "Invalid email or password. Please try again." });
+
+        // Display SweetAlert2 error with a link to login page
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: "Incorrect email or password. Please try again.",
+          footer: `<a href='/login' style='color: #3085d6; text-decoration: none;'>Go back to Login</a>`,
+        });
+
         toast.error("Invalid email or password.");
       });
   };
-
-  // const handleGoogleSignIn = async () => {
-  //   try {
-  //     const result = await signInWithGoogle();
-  //     console.log("Google sign-in successful:", result.user);
-
-  //     toast.success("Logged in with Google!");
-  //     navigate("/"); // Redirect to the home page after login
-  //   } catch (err) {
-  //     console.error("Google sign-in error:", err.message);
-
-  //     switch (err.code) {
-  //       case "auth/popup-closed-by-user":
-  //         toast.error("Google sign-in popup was closed. Try again.");
-  //         break;
-  //       case "auth/cancelled-popup-request":
-  //         toast.error("Request canceled. Please try again.");
-  //         break;
-  //       default:
-  //         toast.error("Google sign-in failed. Please try again.");
-  //     }
-  //   }
-  // };
 
   const handleGoogleSignIn = () => {
     Swal.fire({

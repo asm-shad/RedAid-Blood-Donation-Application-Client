@@ -15,7 +15,7 @@ const AddBlog = () => {
   const [uploadImage, setUploadImage] = useState(null);
   const [previewImage, setPreviewImage] = useState(null); // For image preview
   const [loading, setLoading] = useState(false);
-  const [blogContent, setBlogContent] = useState("");
+  const [blogContent, setBlogContent] = useState(""); // Blog content state
 
   const editor = useRef(null);
 
@@ -171,7 +171,6 @@ const AddBlog = () => {
               ref={editor}
               value={blogContent}
               config={config}
-              onBlur={(newContent) => setBlogContent(newContent)} // Update state on blur
               onChange={(newContent) => setBlogContent(newContent)} // Update state on change
             />
           </div>

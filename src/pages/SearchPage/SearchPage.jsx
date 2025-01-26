@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaQuoteLeft } from "react-icons/fa";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import districtsData from "../../assets/json/districts.json";
 import upazilasData from "../../assets/json/upazilas.json";
 import axios from "axios";
 import useAuth from "../../hooks/useAuth";
+import { TbFidgetSpinner } from "react-icons/tb";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import toast from "react-hot-toast";
 
 const SearchPage = () => {
   const [districts, setDistricts] = useState([]);
@@ -14,6 +17,21 @@ const SearchPage = () => {
   const [selectedUpazila, setSelectedUpazila] = useState("");
   const [selectedBloodGroup, setSelectedBloodGroup] = useState("");
   const { user } = useAuth();
+
+  // Quote data query
+  const { data: quoteData = {}, isLoading: isLoadingQuote } = useQuery({
+    queryKey: ["quote"],
+    queryFn: async () => {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_URL}/quote`);
+      return data;
+    },
+  });
+
+  // Safely extract quote and author with fallback values
+  const {
+    quote = "Giving is not just about making a donation.",
+    author = "Unknown",
+  } = quoteData;
 
   // Load districts on component mount
   useEffect(() => {
@@ -32,7 +50,7 @@ const SearchPage = () => {
     }
   }, [selectedDistrict]);
 
-  // TanStack Query to fetch donors (initialized with enabled: false)
+  // Fetch donors with TanStack Query
   const {
     data: donors,
     isLoading,
@@ -51,13 +69,17 @@ const SearchPage = () => {
       );
       return data;
     },
-    enabled: false, // Disables automatic fetching on mount
+    enabled: false, // Disable automatic fetching
   });
 
-  // Handle search form submission
+  // Handle form submission
   const handleSearch = async (e) => {
     e.preventDefault();
-    refetch(); // Trigger the data fetching manually
+    if (!selectedBloodGroup && !selectedDistrict && !selectedUpazila) {
+      toast.error("Select at least one search field first!");
+      return;
+    }
+    refetch(); // Trigger fetching manually
   };
 
   return (
@@ -67,11 +89,20 @@ const SearchPage = () => {
       </Helmet>
 
       <div
-        className="min-h-screen flex flex-col justify-center items-center p-6"
+        className=" flex flex-col justify-center items-center p-6 bg-gradient-to-r from-red-500 via-red-600 to-red-700"
         style={{
-          background: "linear-gradient(to bottom, #ff4d0d, #ff6600)",
+          background: "",
         }}
       >
+        {/* Quote Section */}
+        <div className="flex-1 flex items-center justify-center bg-red-50  my-4 p-6 rounded-lg shadow-md">
+          <div className="text-center text-red-600 max-w-md">
+            <FaQuoteLeft size={40} className="mx-auto mb-4" />
+            <p className="text-xl italic">{quote}</p>
+            <p className="text-right font-semibold mt-2">- {author}</p>
+          </div>
+        </div>
+
         <div
           className="w-full max-w-2xl p-8 rounded-lg shadow-xl"
           style={{
@@ -86,7 +117,7 @@ const SearchPage = () => {
           </h2>
 
           {/* Search Form */}
-          <form onSubmit={handleSearch} className="grid grid-cols-1 gap-6 ">
+          <form onSubmit={handleSearch} className="grid grid-cols-1 gap-6">
             {/* Blood Group */}
             <div className="form-control">
               <label className="label text-black">Blood Group</label>
@@ -162,8 +193,14 @@ const SearchPage = () => {
               <button
                 type="submit"
                 className="btn bg-red-600 text-white hover:bg-red-700 flex justify-center items-center"
+                disabled={isLoading}
               >
-                <FaSearch className="mr-2" /> Search Donors
+                {isLoading ? (
+                  <TbFidgetSpinner className="animate-spin mr-2" />
+                ) : (
+                  <FaSearch className="mr-2" />
+                )}
+                Search Donors
               </button>
             </div>
           </form>
@@ -172,7 +209,9 @@ const SearchPage = () => {
         {/* Donor List */}
         <div className="mt-10 w-full max-w-3xl">
           {isLoading && (
-            <p className="text-white mt-6 text-lg">Loading donors...</p>
+            <p className="text-white mt-6 text-lg">
+              <LoadingSpinner></LoadingSpinner>
+            </p>
           )}
           {isError && (
             <p className="text-white mt-6 text-lg">Error fetching data!</p>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import Container from "../../components/Container/Container";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +12,7 @@ import { FaQuoteLeft } from "react-icons/fa";
 const BlogDetails = () => {
   const { id } = useParams(); // Get blog ID from URL
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   // Blog data query
   const { data: blog = {}, isLoading } = useQuery({
@@ -124,7 +125,7 @@ const BlogDetails = () => {
             {/* Read More Button */}
             <Button
               label="Read More Blogs"
-              onClick={() => (window.location.href = "/blogs")}
+              onClick={() => navigate("/blog")}
               className="mt-auto"
             />
           </div>

@@ -59,7 +59,10 @@ const Blog = () => {
       </header>
 
       {/* Blog List Section */}
-      <div className="min-h-screen bg-gray-100 py-10" id="requests">
+      <div
+        className="min-h-screen bg-gray-100 py-10 px-4 sm:px-0"
+        id="requests"
+      >
         <div className="container mx-auto grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {blogs?.map((blog) => (
             <div
@@ -91,8 +94,9 @@ const Blog = () => {
           ))}
         </div>
       </div>
+
       {/* Motivational Quote */}
-      <div className="my-12 text-center">
+      <div className="my-12 text-center px-4">
         <p className="text-xl font-semibold text-gray-700">
           “Your donation can save lives. Spread awareness and inspire others.”
         </p>

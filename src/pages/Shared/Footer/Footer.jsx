@@ -5,80 +5,58 @@ import logo from "../../../assets/logo.png";
 
 const Footer = () => {
   return (
-    <footer className="bg-red-600 text-white pt-12">
-      <div className="container mx-auto">
-        <div className="bg-red-600 lg:px-[150px] py-6 flex flex-col items-center md:flex-row justify-between">
-          <div className="flex gap-3 items-center">
-            <div className="icon">
-              <LuPhoneOutgoing className="text-3xl text-white" />
-            </div>
-            <div className="flex flex-col">
-              <p className="text-white text-md">Emergency Calling</p>
-              <p className="text-white">+880 1521445979</p>
-            </div>
-          </div>
-          <div className="flex gap-3 items-center">
-            <div className="icon">
-              <TbMailOpened className="text-3xl text-white" />
-            </div>
-            <div className="flex flex-col">
-              <p className="text-white text-md">Email Us</p>
-              <p className="text-white">www.asmshad@mail.com</p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-3 items-center">
-            <div className="icon">
-              <p className="text-white text-md">{`Let's Connect`}</p>
-            </div>
-            <div className="flex gap-2">
-              <FaFacebook className="text-3xl text-white bg-black rounded-sm p-1" />
-              <FaTwitter className="text-3xl text-white bg-black rounded-sm p-1" />
-              <FaInstagram className="text-3xl text-white bg-black rounded-sm p-1" />
-            </div>
-          </div>
+    <footer className="text-white">
+      {/* Top Section */}
+      <div className="flex flex-col md:flex-row bg-gradient-to-r from-red-500 via-red-600 to-red-700 p-10 items-center justify-between">
+        {/* Left Half */}
+        <div className="flex-1 p-10 text-center">
+          <h2 className="text-3xl font-semibold mb-4">Contact Us</h2>
+          <p>
+            123 ABS Street, Uni 21, Bangladesh <br /> +88 123456789 <br /> Mon -
+            Fri: 08:00 - 22:00 <br /> Sat - Sun: 10:00 - 23:00
+          </p>
         </div>
-        <div className="pt-10 bg-red-600 flex flex-col md:flex-row text-white">
-          <aside className="mx-auto text-center flex items-center">
-            {/* Container with rounded background */}
-            <div className="w-[60px] h-[60px] rounded-full bg-white flex items-center justify-center">
-              <img className="w-[50px]" src={logo} alt="Logo" />
-            </div>
-            <div>
-              <p className="text-5xl font-bold text-white ml-6 font-rancho mb-4">
-                RedAid
-              </p>
-              <p className="ml-6">Working for Humanity</p>
-            </div>
-          </aside>
-          <div className="flex flex-row gap-4 justify-center mx-auto">
-            <nav className="flex flex-col">
-              <header className="text-white font-bold text-xl">Services</header>
-              <a className="link link-hover text-white">Branding</a>
-              <a className="link link-hover text-white">Design</a>
-              <a className="link link-hover text-white">Marketing</a>
-              <a className="link link-hover text-white">Advertisement</a>
-            </nav>
-            <nav className="flex flex-col">
-              <header className="text-white font-bold text-xl">Company</header>
-              <a className="link link-hover text-white">About us</a>
-              <a className="link link-hover text-white">Contact</a>
-              <a className="link link-hover text-white">Jobs</a>
-              <a className="link link-hover text-white">Press kit</a>
-            </nav>
-            <nav className="flex flex-col">
-              <header className="text-white font-bold text-xl">Legal</header>
-              <a className="link link-hover text-white">Terms of use</a>
-              <a className="link link-hover text-white">Privacy policy</a>
-              <a className="link link-hover text-white">Cookie policy</a>
-            </nav>
+
+        {/* Vertical Line */}
+        <div className="border-l-2 border-white md:h-auto h-32 my-4 md:my-0"></div>
+
+        {/* Middle Logo Section */}
+        <div className="flex flex-col items-center justify-center px-10 mb-4 md:mb-0">
+          <div className="w-[60px] h-[60px] rounded-full bg-white flex items-center justify-center mb-4">
+            <img className="w-[50px]" src={logo} alt="Logo" />
           </div>
+          <p className="text-5xl font-bold text-white font-rancho">RedAid</p>
         </div>
+
+        {/* Vertical Line */}
+        <div className="border-l-2 border-white md:h-auto h-32 my-4 md:my-0"></div>
+
+        {/* Right Half */}
+        <nav className="flex-1 p-10 text-center">
+          <h2 className="text-3xl font-semibold mb-4">Follow Us</h2>
+          <h6 className="mb-4">Join us on social media</h6>
+          <div className="flex flex-col items-center gap-4">
+            <div className="grid grid-flow-col gap-4">
+              <a>
+                <FaFacebook className="text-3xl text-white" />
+              </a>
+              <a>
+                <FaTwitter className="text-3xl text-white" />
+              </a>
+              <a>
+                <FaInstagram className="text-3xl text-white" />
+              </a>
+            </div>
+          </div>
+        </nav>
       </div>
-      <div className="footer footer-center bg-red-700 p-4 mt-12">
+
+      {/* Bottom Section */}
+      <div className="footer footer-center bg-gradient-to-r from-[#B91C2D] to-[#9B1C2D] p-4">
         <aside>
           <p>
-            Copyright © {new Date().getFullYear()} - All right reserved by
-            <span className="text-white font-rancho"> RedAid</span>
+            Copyright © {new Date().getFullYear()} - All rights reserved by
+            <span className="font-rancho"> RedAid</span>
           </p>
         </aside>
       </div>
