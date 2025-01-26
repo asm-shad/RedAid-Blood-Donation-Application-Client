@@ -28,6 +28,20 @@ const FundingPage = () => {
     },
   });
 
+  const { data: fetchedUser, error } = useQuery({
+    queryKey: ["userProfile", user?.email],
+    queryFn: async () => {
+      if (!user?.email) {
+        throw new Error("No email found");
+      }
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/users/${user.email}`
+      );
+      return data;
+    },
+    enabled: !!user?.email, // Only run the query if user has an email
+  });
+
   // Update total funds when the `funds` data changes
   useEffect(() => {
     if (funds) {
@@ -38,10 +52,11 @@ const FundingPage = () => {
 
   // Handle Give Fund Button (open modal)
   const handleGiveFund = () => {
-    if (!user) {
+    console.log("Status: ", fetchedUser?.status);
+    if (!fetchedUser) {
       Swal.fire("Unauthorized", "Please login to give funding.", "warning");
       navigate("/login"); // Redirect to login if user is not logged in
-    } else if (user?.status !== "active") {
+    } else if (fetchedUser?.status !== "active") {
       Swal.fire(
         "Inactive Account",
         "You must have an active account to donate.",
@@ -163,7 +178,7 @@ const FundingPage = () => {
       <FundingModal
         isOpen={isModalOpen}
         closeModal={() => setIsModalOpen(false)}
-        user={user}
+        user={fetchedUser}
         refetch={refetch} // refetch funds after donation
       />
 

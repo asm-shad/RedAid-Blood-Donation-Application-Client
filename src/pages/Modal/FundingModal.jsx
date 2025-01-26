@@ -9,15 +9,18 @@ import {
   MenuButton,
 } from "@headlessui/react";
 import { Fragment, useState, useEffect } from "react";
-import useAuth from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useNavigate } from "react-router-dom";
-import Button from "../../components/Button/Button";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import CheckoutForm from "../../components/Form/CheckoutForm";
 
-const FundingModal = ({ closeModal, isOpen, refetch }) => {
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+
+const FundingModal = ({ closeModal, isOpen, refetch, user }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const [donationAmount, setDonationAmount] = useState(5);
   const [fundingInfo, setFundingInfo] = useState({
@@ -81,7 +84,7 @@ const FundingModal = ({ closeModal, isOpen, refetch }) => {
     try {
       await axiosSecure.post("/fund", fundingInfo);
       toast.success("Donation Successful!");
-    //   refetch();
+      refetch();
       closeModal();
     } catch (err) {
       console.error("Error donating funds:", err);
@@ -168,26 +171,16 @@ const FundingModal = ({ closeModal, isOpen, refetch }) => {
                   />
                 </div>
 
-                {/* Donation Button */}
-                <div className="mt-4">
-                  <Menu>
-                    <MenuButton
-                      as={Button}
-                      onClick={handleDonate}
-                      label={`Donate $${donationAmount}`}
-                    />
-                  </Menu>
-                </div>
-
-                {/* Close Modal Button */}
-                <div className="mt-3 text-center">
-                  <button
-                    onClick={closeModal}
-                    className="px-4 py-2 text-sm text-white bg-gray-500 rounded-md hover:bg-gray-600"
-                  >
-                    Close
-                  </button>
-                </div>
+                {/* CheckoutForm */}
+                <Elements stripe={stripePromise}>
+                  {/* Form component */}
+                  <CheckoutForm
+                    closeModal={closeModal}
+                    refetch={refetch}
+                    donationAmount={donationAmount}
+                    fundingInfo={fundingInfo}
+                  />
+                </Elements>
               </DialogPanel>
             </TransitionChild>
           </div>
