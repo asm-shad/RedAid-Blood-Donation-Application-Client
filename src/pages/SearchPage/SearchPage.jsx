@@ -5,14 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import districtsData from "../../assets/json/districts.json";
 import upazilasData from "../../assets/json/upazilas.json";
 import axios from "axios";
-
-// Fetch donors based on selected criteria
-const fetchDonors = async (bloodGroup, district, upazila) => {
-  const response = await axios.get(
-    `/search-donors?bloodGroup=${bloodGroup}&district=${district}&upazila=${upazila}`
-  );
-  return response.data; // Ensure this returns an array of donors
-};
+import useAuth from "../../hooks/useAuth";
 
 const SearchPage = () => {
   const [districts, setDistricts] = useState([]);
@@ -20,6 +13,7 @@ const SearchPage = () => {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedUpazila, setSelectedUpazila] = useState("");
   const [selectedBloodGroup, setSelectedBloodGroup] = useState("");
+  const { user } = useAuth();
 
   // Load districts on component mount
   useEffect(() => {
@@ -38,7 +32,7 @@ const SearchPage = () => {
     }
   }, [selectedDistrict]);
 
-  // TanStack Query to fetch donors
+  // TanStack Query to fetch donors (initialized with enabled: false)
   const {
     data: donors,
     isLoading,
@@ -46,9 +40,18 @@ const SearchPage = () => {
     refetch,
   } = useQuery({
     queryKey: ["donors", selectedBloodGroup, selectedDistrict, selectedUpazila],
-    queryFn: () =>
-      fetchDonors(selectedBloodGroup, selectedDistrict, selectedUpazila),
-    enabled: false, // Disable automatic query execution
+    queryFn: async () => {
+      if (!user?.email) {
+        throw new Error("No email found");
+      }
+      const { data } = await axios.get(
+        `${
+          import.meta.env.VITE_API_URL
+        }/users/?bloodGroup=${selectedBloodGroup}&district=${selectedDistrict}&upazila=${selectedUpazila}`
+      );
+      return data;
+    },
+    enabled: false, // Disables automatic fetching on mount
   });
 
   // Handle search form submission
@@ -66,19 +69,19 @@ const SearchPage = () => {
       <div
         className="min-h-screen flex flex-col justify-center items-center p-6"
         style={{
-          background: "linear-gradient(to bottom, #ff4d4d, #ff6666)",
+          background: "linear-gradient(to bottom, #ff4d0d, #ff6600)",
         }}
       >
         <div
           className="w-full max-w-2xl p-8 rounded-lg shadow-xl"
           style={{
-            background: "rgba(255, 255, 255, 0.4)",
+            background: "rgba(255, 255, 255, 0.8)",
             backdropFilter: "blur(10px)",
             WebkitBackdropFilter: "blur(10px)",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
+            border: "1px solid rgba(255, 255, 255, 0.8)",
           }}
         >
-          <h2 className="text-3xl font-semibold text-center text-white mb-6">
+          <h2 className="text-3xl font-semibold text-center text-black mb-6">
             Search Donors
           </h2>
 
@@ -86,9 +89,9 @@ const SearchPage = () => {
           <form onSubmit={handleSearch} className="grid grid-cols-1 gap-6 ">
             {/* Blood Group */}
             <div className="form-control">
-              <label className="label text-white">Blood Group</label>
+              <label className="label text-black">Blood Group</label>
               <select
-                className="input input-bordered bg-transparent text-white placeholder-gray-200 w-full"
+                className="input input-bordered bg-transparent text-black placeholder-gray-200 w-full"
                 value={selectedBloodGroup}
                 onChange={(e) => setSelectedBloodGroup(e.target.value)}
                 required
@@ -108,9 +111,9 @@ const SearchPage = () => {
 
             {/* District */}
             <div className="form-control">
-              <label className="label text-white">District</label>
+              <label className="label text-black">District</label>
               <select
-                className="input input-bordered bg-transparent text-white placeholder-gray-200 w-full"
+                className="input input-bordered bg-transparent text-black placeholder-gray-200 w-full"
                 value={selectedDistrict}
                 onChange={(e) => setSelectedDistrict(e.target.value)}
                 required
@@ -132,9 +135,9 @@ const SearchPage = () => {
 
             {/* Upazila */}
             <div className="form-control">
-              <label className="label text-white">Upazila</label>
+              <label className="label text-black">Upazila</label>
               <select
-                className="input input-bordered bg-transparent text-white placeholder-gray-200 w-full"
+                className="input input-bordered bg-transparent text-black placeholder-gray-200 w-full"
                 value={selectedUpazila}
                 onChange={(e) => setSelectedUpazila(e.target.value)}
                 required

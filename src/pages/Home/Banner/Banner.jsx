@@ -1,9 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import banner from "../../../assets/banner.jpg";
+import useAuth from "../../../hooks/useAuth";
 
 const Banner = () => {
   const navigate = useNavigate(); // React Router's navigation hook
+  const { user } = useAuth();
 
   return (
     <div
@@ -17,21 +19,23 @@ const Banner = () => {
       <div className="hero-overlay bg-opacity-20 bg-black"></div>
       <div className="hero-content flex flex-col justify-center items-start pl-10 text-neutral-content text-left max-w-3xl">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white">
-          SMS-based platform to connect blood searchers with donors
+          Platform to connect blood searchers with donors
         </h1>
         <p className="text-lg mb-6 text-white">
           Join our community of life savers. Donate blood and make a real
           difference. One donation can save up to three lives.
         </p>
         <div className="flex gap-4">
+          {!user && ( // Hide button if user is logged in
+            <button
+              className="btn bg-gradient-to-r from-red-500 to-red-700 text-white px-6 py-3 rounded-lg shadow-lg hover:scale-105 transform transition duration-300"
+              onClick={() => navigate("/register")}
+            >
+              Join as a Donor
+            </button>
+          )}
           <button
-            className="btn bg-gradient-to-r from-red-500 to-red-700 text-white px-6 py-3 rounded-lg shadow-lg hover:scale-105 transform transition duration-300"
-            onClick={() => navigate("/register")}
-          >
-            Join as a Donor
-          </button>
-          <button
-            className="btn bg-white text-black px-6 py-3 rounded-lg shadow-lg hover:bg-gray-100 hover:scale-105 transform transition duration-300"
+            className="btn bg-gradient-to-r from-red-400 via-red-500 to-red-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-gradient-to-r hover:from-red-500 hover:via-red-600 hover:to-red-700 hover:scale-105 transform transition duration-300"
             onClick={() => navigate("/search")}
           >
             Search Donors
