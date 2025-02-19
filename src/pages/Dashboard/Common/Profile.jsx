@@ -55,12 +55,12 @@ const Profile = () => {
 
   return (
     <div className="relative h-screen flex flex-col justify-center items-center z-0">
-      <LottieBackground animationData={splitBloodAnimation} />
       <Helmet>
         <title>Profile</title>
       </Helmet>
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
+        <LottieBackground animationData={splitBloodAnimation} />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
           {/* Profile Details */}
           <div className="md:col-span-2">

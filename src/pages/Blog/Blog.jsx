@@ -85,7 +85,7 @@ const Blog = () => {
                 </p>
                 <Link
                   to={`/blog/${blog._id}`}
-                  className="mt-4 inline-block text-red-600 hover:underline font-medium"
+                  className="mt-4 inline-block text-white font-medium bg-gradient-to-r from-red-500 to-pink-500 hover:bg-gradient-to-l transition duration-300 rounded-lg px-4 py-2"
                 >
                   Read More →
                 </Link>
