@@ -9,23 +9,13 @@ import LottieBackground from "../../../components/LottieBackground/LottieBackgro
 import { useEffect } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
-import {
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  FormGroup,
-  Form,
-  Input,
-  Row,
-  Col,
-} from "reactstrap";
 
 const Profile = () => {
   const { user, loading } = useAuth();
   const [role, isLoading] = useRole();
   const navigate = useNavigate();
   console.log(user);
+
   // Fetch user data based on email using the new query function format
   const {
     data: fetchedUser,
@@ -79,189 +69,187 @@ const Profile = () => {
       </Helmet>
 
       {/* Content */}
-      <div className="content">
-        <Row>
-          <Col md="8">
-            <Card>
-              <CardHeader>
-                <h5 className="title">Edit Profile</h5>
-              </CardHeader>
-              <CardBody>
-                <Form>
-                  <Row>
-                    <Col className="pr-1" md="5">
-                      <FormGroup>
-                        <label>Company (disabled)</label>
-                        <Input
-                          defaultValue="Creative Code Inc."
-                          disabled
-                          placeholder="Company"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="px-1" md="3">
-                      <FormGroup>
-                        <label>Username</label>
-                        <Input
-                          defaultValue={user?.displayName || "Guest User"}
-                          placeholder="Username"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="pl-1" md="4">
-                      <FormGroup>
-                        <label htmlFor="exampleInputEmail1">
-                          Email address
-                        </label>
-                        <Input
-                          defaultValue={fetchedUser?.email || "N/A"}
-                          placeholder="Email"
-                          type="email"
-                        />
-                      </FormGroup>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col className="pr-1" md="6">
-                      <FormGroup>
-                        <label>First Name</label>
-                        <Input
-                          defaultValue="Mike"
-                          placeholder="Company"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="pl-1" md="6">
-                      <FormGroup>
-                        <label>Last Name</label>
-                        <Input
-                          defaultValue="Andrew"
-                          placeholder="Last Name"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col md="12">
-                      <FormGroup>
-                        <label>Address</label>
-                        <Input
-                          defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
-                          placeholder="Home Address"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col className="pr-1" md="4">
-                      <FormGroup>
-                        <label>City</label>
-                        <Input
-                          defaultValue="Mike"
-                          placeholder="City"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="px-1" md="4">
-                      <FormGroup>
-                        <label>Country</label>
-                        <Input
-                          defaultValue="Andrew"
-                          placeholder="Country"
-                          type="text"
-                        />
-                      </FormGroup>
-                    </Col>
-                    <Col className="pl-1" md="4">
-                      <FormGroup>
-                        <label>Postal Code</label>
-                        <Input placeholder="ZIP Code" type="number" />
-                      </FormGroup>
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col md="12">
-                      <FormGroup>
-                        <label>About Me</label>
-                        <Input
-                          cols="80"
-                          defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in
-                            that two seat Lambo."
-                          placeholder="Here can be your description"
-                          rows="4"
-                          type="textarea"
-                        />
-                      </FormGroup>
-                    </Col>
-                  </Row>
-                </Form>
-              </CardBody>
-            </Card>
-          </Col>
-          <Col md="4">
-            <Card className="card-user">
-              <div className="image">
-                <img alt="..." src={coverImg} />
-              </div>
-              <CardBody>
-                <div className="author">
-                  <a href="#pablo" onClick={(e) => e.preventDefault()}>
-                    <img
-                      alt="..."
-                      className="avatar border-gray"
-                      src={fetchedUser?.image || "/default-avatar.png"}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Edit Profile Card */}
+          <div className="md:col-span-2">
+            <div className="bg-white bg-opacity-70 backdrop-blur-md rounded-lg shadow-lg p-6">
+              <h2 className="text-2xl font-bold mb-6">Edit Profile</h2>
+              <form>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Company */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Company (disabled)
+                    </label>
+                    <input
+                      defaultValue="Creative Code Inc."
+                      disabled
+                      placeholder="Company"
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     />
-                    <h5 className="title">
-                      {user?.displayName || "Guest User"}
-                    </h5>
-                  </a>
-                  <p className="description">{role || "No Role Assigned"}</p>
+                  </div>
+
+                  {/* Username */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Username
+                    </label>
+                    <input
+                      defaultValue={user?.displayName || "Guest User"}
+                      placeholder="Username"
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  {/* Email */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Email address
+                    </label>
+                    <input
+                      defaultValue={fetchedUser?.email || "N/A"}
+                      placeholder="Email"
+                      type="email"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  {/* First Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      First Name
+                    </label>
+                    <input
+                      defaultValue="Mike"
+                      placeholder="First Name"
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  {/* Last Name */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Last Name
+                    </label>
+                    <input
+                      defaultValue="Andrew"
+                      placeholder="Last Name"
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  {/* Address */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Address
+                    </label>
+                    <input
+                      defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
+                      placeholder="Home Address"
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  {/* City */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      City
+                    </label>
+                    <input
+                      defaultValue="Mike"
+                      placeholder="City"
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  {/* Country */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Country
+                    </label>
+                    <input
+                      defaultValue="Andrew"
+                      placeholder="Country"
+                      type="text"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  {/* Postal Code */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Postal Code
+                    </label>
+                    <input
+                      placeholder="ZIP Code"
+                      type="number"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
+
+                  {/* About Me */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      About Me
+                    </label>
+                    <textarea
+                      defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in that two seat Lambo."
+                      placeholder="Here can be your description"
+                      rows="4"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    />
+                  </div>
                 </div>
-                <p className="description text-center">
-                  "Lamborghini Mercy <br />
-                  Your chick she so thirsty <br />
-                  I'm in that two seat Lambo"
-                </p>
-              </CardBody>
-              <hr />
-              <div className="button-container">
-                <Button
-                  className="btn-neutral btn-icon btn-round"
-                  color="default"
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                  size="lg"
-                >
-                  <i className="fab fa-facebook-f" />
-                </Button>
-                <Button
-                  className="btn-neutral btn-icon btn-round"
-                  color="default"
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                  size="lg"
-                >
-                  <i className="fab fa-twitter" />
-                </Button>
-                <Button
-                  className="btn-neutral btn-icon btn-round"
-                  color="default"
-                  href="#pablo"
-                  onClick={(e) => e.preventDefault()}
-                  size="lg"
-                >
-                  <i className="fab fa-google-plus-g" />
-                </Button>
-              </div>
-            </Card>
-          </Col>
-        </Row>
+              </form>
+            </div>
+          </div>
+
+          {/* User Info Card */}
+          <div className="bg-white bg-opacity-70 backdrop-blur-md rounded-lg shadow-lg p-6">
+            <div className="image">
+              <img
+                alt="..."
+                src={coverImg}
+                className="w-full h-32 object-cover rounded-t-lg"
+              />
+            </div>
+            <div className="author text-center mt-6">
+              <img
+                alt="..."
+                className="w-24 h-24 rounded-full border-4 border-white mx-auto -mt-12"
+                src={fetchedUser?.image || "/default-avatar.png"}
+              />
+              <h5 className="text-xl font-bold mt-4">
+                {user?.displayName || "Guest User"}
+              </h5>
+              <p className="text-sm text-gray-600">{role || "No Role Assigned"}</p>
+              <p className="text-sm text-gray-600 mt-4">
+                "Lamborghini Mercy <br />
+                Your chick she so thirsty <br />
+                I'm in that two seat Lambo"
+              </p>
+            </div>
+            <hr className="my-6" />
+            <div className="flex justify-center space-x-4">
+              <button className="p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+                <i className="fab fa-facebook-f text-gray-700" />
+              </button>
+              <button className="p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+                <i className="fab fa-twitter text-gray-700" />
+              </button>
+              <button className="p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+                <i className="fab fa-google-plus-g text-gray-700" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
