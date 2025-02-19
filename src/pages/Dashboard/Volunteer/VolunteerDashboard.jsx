@@ -1,13 +1,26 @@
 import React from "react";
 import { FaUsers, FaDollarSign, FaHeartbeat } from "react-icons/fa";
+import { useQuery } from "@tanstack/react-query";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import { useQuery } from "@tanstack/react-query";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
 
 const VolunteerDashboard = () => {
-  const { user } = useAuth(); // Get the authenticated user's details
+  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
+
   const { data: statData, isLoading } = useQuery({
     queryKey: ["dashboard-stat"],
     queryFn: async () => {
@@ -15,10 +28,24 @@ const VolunteerDashboard = () => {
       return data;
     },
   });
-  console.log(statData);
+
+  if (isLoading) return <LoadingSpinner />;
+
   const { totalDonor, totalRequest, totalFund } = statData || {};
 
-  if (isLoading) return <LoadingSpinner></LoadingSpinner>;
+  // Data for charts
+  const chartData = [
+    { name: "Donors", value: totalDonor },
+    { name: "Requests", value: totalRequest },
+    { name: "Funding ($)", value: totalFund },
+  ];
+
+  const pieData = [
+    { name: "Total Donors", value: totalDonor },
+    { name: "Total Requests", value: totalRequest },
+  ];
+
+  const COLORS = ["#0088FE", "#FF8042"];
 
   return (
     <div className="p-10 bg-gray-100 min-h-screen">
@@ -73,6 +100,60 @@ const VolunteerDashboard = () => {
               Total Blood Requests
             </h2>
             <p className="text-gray-600 text-sm">{totalRequest} Requests</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts Section */}
+      <div className="mt-10">
+        <h2 className="text-xl font-bold text-gray-800 text-center mb-4">
+          Platform Insights
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Bar Chart */}
+          <div className="bg-white p-6 shadow-md rounded-md">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              Donors, Requests & Funding Overview
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={chartData}>
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#FF6363" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Pie Chart */}
+          <div className="bg-white p-6 shadow-md rounded-md">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              Donors vs. Requests
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </div>
       </div>
