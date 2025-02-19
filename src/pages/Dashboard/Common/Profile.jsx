@@ -4,7 +4,6 @@ import splitBloodAnimation from "../../../assets/json/split-blood.json";
 import coverImg from "../../../assets/cork-board.jpg";
 import useAuth from "../../../hooks/useAuth";
 import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
-import useRole from "../../../hooks/useRole";
 import LottieBackground from "../../../components/LottieBackground/LottieBackground";
 import { useEffect } from "react";
 import axios from "axios";
@@ -12,7 +11,6 @@ import { useQuery } from "@tanstack/react-query";
 
 const Profile = () => {
   const { user, loading } = useAuth();
-  const [role, isLoading] = useRole();
   const navigate = useNavigate();
 
   const {
@@ -26,7 +24,11 @@ const Profile = () => {
       const { data } = await axios.get(
         `${import.meta.env.VITE_API_URL}/users/${user.email}`
       );
-      return data;
+      return {
+        ...data,
+        firstName: data?.name?.split(" ")[0] || "",
+        lastName: data?.name?.split(" ")[1] || "",
+      };
     },
     enabled: !!user?.email,
   });
@@ -35,7 +37,7 @@ const Profile = () => {
     if (!loading && !user) navigate("/login");
   }, [user, loading, navigate]);
 
-  if (isLoading || loading || isLoadingUser) {
+  if (loading || isLoadingUser) {
     return (
       <div className="flex justify-center items-center h-screen">
         <LoadingSpinner />
@@ -59,24 +61,12 @@ const Profile = () => {
       </Helmet>
 
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
           {/* Profile Details */}
           <div className="md:col-span-2">
             <div className="bg-white bg-opacity-70 backdrop-blur-md rounded-lg shadow-lg p-6 h-full">
               <h2 className="text-2xl font-bold mb-6">Profile Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Company</p>
-                  <p className="text-lg font-semibold">Creative Code Inc.</p>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Username</p>
-                  <p className="text-lg font-semibold">
-                    {user?.displayName || "Guest User"}
-                  </p>
-                </div>
-
                 <div className="md:col-span-2">
                   <p className="text-sm font-medium text-gray-700">Email</p>
                   <p className="text-lg font-semibold">
@@ -89,51 +79,62 @@ const Profile = () => {
                     First Name
                   </p>
                   <p className="text-lg font-semibold">
-                    {fetchedUser?.firstName || "John"}
+                    {fetchedUser?.firstName || "N/A"}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm font-medium text-gray-700">Last Name</p>
                   <p className="text-lg font-semibold">
-                    {fetchedUser?.lastName || "Doe"}
-                  </p>
-                </div>
-
-                <div className="md:col-span-2">
-                  <p className="text-sm font-medium text-gray-700">Address</p>
-                  <p className="text-lg font-semibold">
-                    {fetchedUser?.address || "Not Available"}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700">City</p>
-                  <p className="text-lg font-semibold">
-                    {fetchedUser?.city || "Unknown"}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Country</p>
-                  <p className="text-lg font-semibold">
-                    {fetchedUser?.country || "Unknown"}
+                    {fetchedUser?.lastName || "N/A"}
                   </p>
                 </div>
 
                 <div>
                   <p className="text-sm font-medium text-gray-700">
-                    Postal Code
+                    Blood Group
                   </p>
                   <p className="text-lg font-semibold">
-                    {fetchedUser?.zip || "N/A"}
+                    {fetchedUser?.bloodGroup || "N/A"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-700">District</p>
+                  <p className="text-lg font-semibold">
+                    {fetchedUser?.district || "N/A"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Upazila</p>
+                  <p className="text-lg font-semibold">
+                    {fetchedUser?.upazila || "N/A"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Status</p>
+                  <p className="text-lg font-semibold capitalize">
+                    {fetchedUser?.status || "N/A"}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Role</p>
+                  <p className="text-lg font-semibold capitalize">
+                    {fetchedUser?.role || "N/A"}
                   </p>
                 </div>
 
                 <div className="md:col-span-2">
-                  <p className="text-sm font-medium text-gray-700">About Me</p>
+                  <p className="text-sm font-medium text-gray-700">
+                    Profile Created On
+                  </p>
                   <p className="text-lg font-semibold">
-                    {fetchedUser?.about || "No details provided."}
+                    {new Date(
+                      fetchedUser?.profileCreationDate
+                    ).toDateString() || "N/A"}
                   </p>
                 </div>
               </div>
@@ -156,13 +157,17 @@ const Profile = () => {
                 src={fetchedUser?.image || "/default-avatar.png"}
               />
               <h5 className="text-xl font-bold mt-4">
-                {user?.displayName || "Guest User"}
+                {fetchedUser?.name || "User"}
               </h5>
               <p className="text-sm text-gray-600">
-                {role || "No Role Assigned"}
+                {fetchedUser?.role || "No Role Assigned"}
               </p>
               <p className="text-sm text-gray-600 mt-4 italic">
-                "{fetchedUser?.bio || "Live, Learn, and Grow"}"
+                "
+                {fetchedUser?.status === "active"
+                  ? "Helping others"
+                  : "Inactive"}
+                "
               </p>
             </div>
             <hr className="my-6" />
