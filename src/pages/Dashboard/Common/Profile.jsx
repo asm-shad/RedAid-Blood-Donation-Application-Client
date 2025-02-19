@@ -9,6 +9,17 @@ import LottieBackground from "../../../components/LottieBackground/LottieBackgro
 import { useEffect } from "react";
 import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
+import {
+  Button,
+  Card,
+  CardHeader,
+  CardBody,
+  FormGroup,
+  Form,
+  Input,
+  Row,
+  Col,
+} from "reactstrap";
 
 const Profile = () => {
   const { user, loading } = useAuth();
@@ -68,57 +79,189 @@ const Profile = () => {
       </Helmet>
 
       {/* Content */}
-      <div className="relative bg-white bg-opacity-70 backdrop-blur-md shadow-lg rounded-2xl z-1 md:w-4/5 lg:w-3/5 p-4">
-        <img
-          alt="cover photo"
-          src={coverImg}
-          className="w-full mb-4 rounded-t-lg h-56"
-        />
-        <div className="flex flex-col items-center justify-center p-4 -mt-16">
-          <a href="#" className="relative block">
-            <img
-              alt="profile"
-              src={fetchedUser?.image || "/default-avatar.png"}
-              className="mx-auto object-cover rounded-full h-24 w-24 border-2 border-white"
-            />
-          </a>
-
-          <p className="p-2 px-4 text-xs text-white bg-[#EB2C29] rounded-full capitalize">
-            {role || "No Role Assigned"}
-          </p>
-          <p className="mt-2 text-2xl font-bold text-gray-800">
-            UserName: {user?.displayName || "Guest User"}
-          </p>
-          <div className="w-full p-2 mt-4 rounded-lg">
-            <div className="flex flex-wrap items-center justify-between text-sm text-gray-600">
-              <p className="flex flex-col text-xl">
-                BloodGroup:
-                <span className="font-bold text-black">
-                  {fetchedUser?.bloodGroup || "N/A"}
-                </span>
-              </p>
-              <p className="flex flex-col text-xl">
-                Email:
-                <span className="font-bold text-black">
-                  {fetchedUser?.email || "N/A"}
-                </span>
-              </p>
-            </div>
-          </div>
-
-          {/* Buttons moved back below */}
-          <div className="mt-4">
-            <button
-              onClick={() => navigate("/dashboard/profile/edit")}
-              className="bg-[#EB2C29] px-10 py-1 rounded-lg text-white cursor-pointer hover:bg-lime-800 block mb-1"
-            >
-              Update Profile
-            </button>
-            <button className="bg-[#EB2C29] px-7 py-1 rounded-lg text-white cursor-pointer hover:bg-lime-800">
-              Change Password
-            </button>
-          </div>
-        </div>
+      <div className="content">
+        <Row>
+          <Col md="8">
+            <Card>
+              <CardHeader>
+                <h5 className="title">Edit Profile</h5>
+              </CardHeader>
+              <CardBody>
+                <Form>
+                  <Row>
+                    <Col className="pr-1" md="5">
+                      <FormGroup>
+                        <label>Company (disabled)</label>
+                        <Input
+                          defaultValue="Creative Code Inc."
+                          disabled
+                          placeholder="Company"
+                          type="text"
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col className="px-1" md="3">
+                      <FormGroup>
+                        <label>Username</label>
+                        <Input
+                          defaultValue={user?.displayName || "Guest User"}
+                          placeholder="Username"
+                          type="text"
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col className="pl-1" md="4">
+                      <FormGroup>
+                        <label htmlFor="exampleInputEmail1">
+                          Email address
+                        </label>
+                        <Input
+                          defaultValue={fetchedUser?.email || "N/A"}
+                          placeholder="Email"
+                          type="email"
+                        />
+                      </FormGroup>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col className="pr-1" md="6">
+                      <FormGroup>
+                        <label>First Name</label>
+                        <Input
+                          defaultValue="Mike"
+                          placeholder="Company"
+                          type="text"
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col className="pl-1" md="6">
+                      <FormGroup>
+                        <label>Last Name</label>
+                        <Input
+                          defaultValue="Andrew"
+                          placeholder="Last Name"
+                          type="text"
+                        />
+                      </FormGroup>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col md="12">
+                      <FormGroup>
+                        <label>Address</label>
+                        <Input
+                          defaultValue="Bld Mihail Kogalniceanu, nr. 8 Bl 1, Sc 1, Ap 09"
+                          placeholder="Home Address"
+                          type="text"
+                        />
+                      </FormGroup>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col className="pr-1" md="4">
+                      <FormGroup>
+                        <label>City</label>
+                        <Input
+                          defaultValue="Mike"
+                          placeholder="City"
+                          type="text"
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col className="px-1" md="4">
+                      <FormGroup>
+                        <label>Country</label>
+                        <Input
+                          defaultValue="Andrew"
+                          placeholder="Country"
+                          type="text"
+                        />
+                      </FormGroup>
+                    </Col>
+                    <Col className="pl-1" md="4">
+                      <FormGroup>
+                        <label>Postal Code</label>
+                        <Input placeholder="ZIP Code" type="number" />
+                      </FormGroup>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col md="12">
+                      <FormGroup>
+                        <label>About Me</label>
+                        <Input
+                          cols="80"
+                          defaultValue="Lamborghini Mercy, Your chick she so thirsty, I'm in
+                            that two seat Lambo."
+                          placeholder="Here can be your description"
+                          rows="4"
+                          type="textarea"
+                        />
+                      </FormGroup>
+                    </Col>
+                  </Row>
+                </Form>
+              </CardBody>
+            </Card>
+          </Col>
+          <Col md="4">
+            <Card className="card-user">
+              <div className="image">
+                <img alt="..." src={coverImg} />
+              </div>
+              <CardBody>
+                <div className="author">
+                  <a href="#pablo" onClick={(e) => e.preventDefault()}>
+                    <img
+                      alt="..."
+                      className="avatar border-gray"
+                      src={fetchedUser?.image || "/default-avatar.png"}
+                    />
+                    <h5 className="title">
+                      {user?.displayName || "Guest User"}
+                    </h5>
+                  </a>
+                  <p className="description">{role || "No Role Assigned"}</p>
+                </div>
+                <p className="description text-center">
+                  "Lamborghini Mercy <br />
+                  Your chick she so thirsty <br />
+                  I'm in that two seat Lambo"
+                </p>
+              </CardBody>
+              <hr />
+              <div className="button-container">
+                <Button
+                  className="btn-neutral btn-icon btn-round"
+                  color="default"
+                  href="#pablo"
+                  onClick={(e) => e.preventDefault()}
+                  size="lg"
+                >
+                  <i className="fab fa-facebook-f" />
+                </Button>
+                <Button
+                  className="btn-neutral btn-icon btn-round"
+                  color="default"
+                  href="#pablo"
+                  onClick={(e) => e.preventDefault()}
+                  size="lg"
+                >
+                  <i className="fab fa-twitter" />
+                </Button>
+                <Button
+                  className="btn-neutral btn-icon btn-round"
+                  color="default"
+                  href="#pablo"
+                  onClick={(e) => e.preventDefault()}
+                  size="lg"
+                >
+                  <i className="fab fa-google-plus-g" />
+                </Button>
+              </div>
+            </Card>
+          </Col>
+        </Row>
       </div>
     </div>
   );
