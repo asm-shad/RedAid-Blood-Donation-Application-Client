@@ -128,7 +128,34 @@ const AdminDashboard = () => {
             </ResponsiveContainer>
           </div>
 
-
+          {/* Pie Chart */}
+          <div className="bg-white p-6 shadow-md rounded-md">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              Donors vs. Requests
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>
